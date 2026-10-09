@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/.idea/Itau---Java-com-Intelig-ncia-Artificial.iml" filepath="$PROJECT_DIR$/.idea/Itau---Java-com-Intelig-ncia-Artificial.iml" />
+      <module fileurl="file://$PROJECT_DIR$/aulas/classes/Thread/Thread.iml" filepath="$PROJECT_DIR$/aulas/classes/Thread/Thread.iml" />
+      <module fileurl="file://$PROJECT_DIR$/aulas/annotations/annotations.iml" filepath="$PROJECT_DIR$/aulas/annotations/annotations.iml" />
+      <module fileurl="file://$PROJECT_DIR$/aulas/classes/bigDecimal/bigDecimal.iml" filepath="$PROJECT_DIR$/aulas/classes/bigDecimal/bigDecimal.iml" />
+      <module fileurl="file://$PROJECT_DIR$/aulas/classes/date/date.iml" filepath="$PROJECT_DIR$/aulas/classes/date/date.iml" />
+      <module fileurl="file://$PROJECT_DIR$/aulas/classes/enums/enums.iml" filepath="$PROJECT_DIR$/aulas/classes/enums/enums.iml" />
+      <module fileurl="file://$PROJECT_DIR$/aulas/api de streams/generics/generics.iml" filepath="$PROJECT_DIR$/aulas/api de streams/generics/generics.iml" />
+      <module fileurl="file://$PROJECT_DIR$/aulas/interfaces/interfaces.iml" filepath="$PROJECT_DIR$/aulas/interfaces/interfaces.iml" />
+      <module fileurl="file://$PROJECT_DIR$/aulas/classes/optional/optional.iml" filepath="$PROJECT_DIR$/aulas/classes/optional/optional.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/serializer.iml" filepath="$PROJECT_DIR$/.idea/modules/serializer.iml" />
+      <module fileurl="file://$PROJECT_DIR$/aulas/api de streams/stream/stream.iml" filepath="$PROJECT_DIR$/aulas/api de streams/stream/stream.iml" />
+      <module fileurl="file://$PROJECT_DIR$/aulas/classes/stringBuilder/stringBuilder.iml" filepath="$PROJECT_DIR$/aulas/classes/stringBuilder/stringBuilder.iml" />
+      <module fileurl="file://$PROJECT_DIR$/aulas/classes/stringClass/stringClass.iml" filepath="$PROJECT_DIR$/aulas/classes/stringClass/stringClass.iml" />
+    </modules>
+  </component>
+</project>
