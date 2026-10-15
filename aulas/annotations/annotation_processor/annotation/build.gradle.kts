@@ -2,7 +2,7 @@ plugins {
     id("java")
 }
 
-group = "org.example"
+group = "br.com.dio"
 version = "1.0-SNAPSHOT"
 
 repositories {
@@ -10,6 +10,5 @@ repositories {
 }
 
 dependencies {
-
 
 }
