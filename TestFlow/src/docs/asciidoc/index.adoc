@@ -1,0 +1,78 @@
+
+= TestFlow API
+:toc:
+:snippets: build/generated-snippets
+
+This document describes the HTTP API ROUTES for the projects that can be created in the test plataform TESTFLOW.
+
+== Create a project
+
+Creates a project and returns its generated identifier and name.
+
+=== Request
+
+include::{snippets}/projects/create/http-request.adoc[]
+
+include::{snippets}/projects/create/request-fields.adoc[]
+
+=== Response
+
+include::{snippets}/projects/create/http-response.adoc[]
+
+include::{snippets}/projects/create/response-fields.adoc[]
+
+== List projects
+
+Returns all projects.
+
+=== Response
+
+include::{snippets}/projects/list/http-response.adoc[]
+
+include::{snippets}/projects/list/response-fields.adoc[]
+
+== Get a project
+
+Returns a project by its identifier.
+
+=== Path parameters
+
+include::{snippets}/projects/get-by-id/path-parameters.adoc[]
+
+=== Response
+
+include::{snippets}/projects/get-by-id/http-response.adoc[]
+
+include::{snippets}/projects/get-by-id/response-fields.adoc[]
+
+== Update a project
+
+Updates the name of a project.
+
+=== Path parameters
+
+include::{snippets}/projects/update/path-parameters.adoc[]
+
+=== Request
+
+include::{snippets}/projects/update/http-request.adoc[]
+
+include::{snippets}/projects/update/request-fields.adoc[]
+
+=== Response
+
+include::{snippets}/projects/update/http-response.adoc[]
+
+include::{snippets}/projects/update/response-fields.adoc[]
+
+== Delete a project
+
+Deletes a project by its identifier. A successful deletion returns no content.
+
+=== Path parameters
+
+include::{snippets}/projects/delete/path-parameters.adoc[]
+
+=== Response
+
+include::{snippets}/projects/delete/http-response.adoc[]

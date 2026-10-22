@@ -24,8 +24,7 @@ public class inMemoryProjectRepository implements ProjectRepository {
 
     @Override
     public Optional<Project> findById(ProjectId id) {
-            Optional<Project> project =  Optional.ofNullable(projects.get(id));
-        return Optional.of(project.orElseThrow(() -> new RuntimeException("Projeto não encontrado")));
+        return Optional.ofNullable(projects.get(id));
     }
 
     @Override

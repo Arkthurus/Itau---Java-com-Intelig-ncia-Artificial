@@ -3,7 +3,6 @@ package testflow.TestFlow.application;
 import org.springframework.stereotype.Service;
 import testflow.TestFlow.application.input.UpdateProjectInput;
 import testflow.TestFlow.application.output.ProjectOutput;
-import testflow.TestFlow.domain.Project;
 import testflow.TestFlow.domain.ProjectId;
 import testflow.TestFlow.domain.ProjectNotFoundException;
 import testflow.TestFlow.domain.ProjectRepository;

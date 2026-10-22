@@ -1,7 +1,6 @@
 package testflow.TestFlow.domain;
 
 import java.lang.String;
-import java.util.Optional;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -19,7 +18,7 @@ public class Project {
         this.name = name ;
     }
 
-    public void update(Optional<String> name){
-        name.ifPresent(this::setName);
+    public void update(String name){
+        this.name = name;
     }
 }
