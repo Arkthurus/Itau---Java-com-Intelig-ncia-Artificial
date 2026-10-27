@@ -48,84 +48,84 @@ class ProjectControllerTest {
     }
 
     @Test
-    void shouldCreateProjectAndDocumentRequestAndResponse() throws Exception {
+    void deveCriarProjetoEDocumentarRequisicaoEResposta() throws Exception {
         mockMvc.perform(post("/projects")
                         .contentType(APPLICATION_JSON)
                         .content("""
-                                {"projectName":"Documented project"}
+                                {"projectName":"Projeto documentado"}
                                 """))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").isNotEmpty())
-                .andExpect(jsonPath("$.projectName").value("Documented project"))
+                .andExpect(jsonPath("$.projectName").value("Projeto documentado"))
                 .andDo(document("projects/create",
-                        requestFields(fieldWithPath("projectName").description("Name of the project")),
+                        requestFields(fieldWithPath("projectName").description("Nome do projeto")),
                         responseFields(
-                                fieldWithPath("id").description("Unique identifier of the project"),
-                                fieldWithPath("projectName").description("Name of the project"))));
+                                fieldWithPath("id").description("Identificador único do projeto"),
+                                fieldWithPath("projectName").description("Nome do projeto"))));
     }
 
     @Test
-    void shouldListProjectsAndDocumentResponse() throws Exception {
-        createProject("Listed project");
+    void deveListarProjetosEDocumentarResposta() throws Exception {
+        criarProjeto("Projeto listado");
 
         mockMvc.perform(get("/projects"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$[*].projectName", hasItem("Listed project")))
+                .andExpect(jsonPath("$[*].projectName", hasItem("Projeto listado")))
                 .andDo(document("projects/list",
                         responseFields(
-                                fieldWithPath("[].id").description("Unique identifier of the project"),
-                                fieldWithPath("[].projectName").description("Name of the project"))));
+                                fieldWithPath("[].id").description("Identificador único do projeto"),
+                                fieldWithPath("[].projectName").description("Nome do projeto"))));
     }
 
     @Test
-    void shouldGetProjectByIdAndDocumentResponse() throws Exception {
-        String projectId = createProject("Project details");
+    void deveBuscarProjetoPorIdEDocumentarResposta() throws Exception {
+        String idProjeto = criarProjeto("Detalhes do projeto");
 
-        mockMvc.perform(get("/projects/{id}", projectId))
+        mockMvc.perform(get("/projects/{id}", idProjeto))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.id").value(projectId))
-                .andExpect(jsonPath("$.projectName").value("Project details"))
+                .andExpect(jsonPath("$.id").value(idProjeto))
+                .andExpect(jsonPath("$.projectName").value("Detalhes do projeto"))
                 .andDo(document("projects/get-by-id",
-                        pathParameters(parameterWithName("id").description("Unique identifier of the project")),
+                        pathParameters(parameterWithName("id").description("Identificador único do projeto")),
                         responseFields(
-                                fieldWithPath("id").description("Unique identifier of the project"),
-                                fieldWithPath("projectName").description("Name of the project"))));
+                                fieldWithPath("id").description("Identificador único do projeto"),
+                                fieldWithPath("projectName").description("Nome do projeto"))));
     }
 
     @Test
-    void shouldUpdateProjectAndDocumentRequestAndResponse() throws Exception {
-        String projectId = createProject("Original project");
+    void deveAtualizarProjetoEDocumentarRequisicaoEResposta() throws Exception {
+        String idProjeto = criarProjeto("Projeto original");
 
-        mockMvc.perform(put("/projects/{id}", projectId)
+        mockMvc.perform(put("/projects/{id}", idProjeto)
                         .contentType(APPLICATION_JSON)
                         .content("""
-                                {"newName":"Updated project"}
+                                {"newName":"Projeto atualizado"}
                                 """))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.id").value(projectId))
-                .andExpect(jsonPath("$.projectName").value("Updated project"))
+                .andExpect(jsonPath("$.id").value(idProjeto))
+                .andExpect(jsonPath("$.projectName").value("Projeto atualizado"))
                 .andDo(document("projects/update",
-                        pathParameters(parameterWithName("id").description("Unique identifier of the project")),
-                        requestFields(fieldWithPath("newName").description("New name of the project")),
+                        pathParameters(parameterWithName("id").description("Identificador único do projeto")),
+                        requestFields(fieldWithPath("newName").description("Novo nome do projeto")),
                         responseFields(
-                                fieldWithPath("id").description("Unique identifier of the project"),
-                                fieldWithPath("projectName").description("Updated name of the project"))));
+                                fieldWithPath("id").description("Identificador único do projeto"),
+                                fieldWithPath("projectName").description("Nome atualizado do projeto"))));
     }
 
     @Test
-    void shouldDeleteProjectAndDocumentResponse() throws Exception {
-        String projectId = createProject("Project to delete");
+    void deveExcluirProjetoEDocumentarResposta() throws Exception {
+        String idProjeto = criarProjeto("Projeto a excluir");
 
-        mockMvc.perform(delete("/projects/{id}", projectId))
+        mockMvc.perform(delete("/projects/{id}", idProjeto))
                 .andExpect(status().isNoContent())
                 .andDo(document("projects/delete",
-                        pathParameters(parameterWithName("id").description("Unique identifier of the project"))));
+                        pathParameters(parameterWithName("id").description("Identificador único do projeto"))));
     }
 
-    private String createProject(String name) throws Exception {
+    private String criarProjeto(String nome) throws Exception {
         MvcResult result = mockMvc.perform(post("/projects")
                         .contentType(APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(java.util.Map.of("projectName", name))))
+                        .content(objectMapper.writeValueAsString(java.util.Map.of("projectName", nome))))
                 .andExpect(status().isOk())
                 .andReturn();
 

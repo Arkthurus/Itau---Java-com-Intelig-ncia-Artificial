@@ -16,7 +16,7 @@ public class CreateProjectUseCase {
 
     public ProjectOutput execute(CreateProjectInput input){
         var project = new Project(input.name());
-        var saved = projectRepository.create(project);
+        var saved = projectRepository.save(project);
         return ProjectOutput.from(saved);
     }
 }

@@ -7,12 +7,12 @@ import testflow.TestFlow.domain.ProjectRepository;
 
 import java.util.*;
 @Repository
-public class inMemoryProjectRepository implements ProjectRepository {
+public class JpaProjectRepository implements ProjectRepository {
 
     private final Map<ProjectId, Project> projects = new HashMap<>();
 
     @Override
-    public Project create(Project project) {
+    public Project save(Project project) {
         projects.put(project.getId(), project);
         return project;
     }

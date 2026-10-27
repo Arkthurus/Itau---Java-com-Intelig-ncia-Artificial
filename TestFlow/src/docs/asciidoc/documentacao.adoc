@@ -1,78 +1,92 @@
-
-= TestFlow API
+= Documentação do CRUD de Projetos da API do TestFlow
 :toc:
-:snippets: build/generated-snippets
+:toc-title: Índice
+:sectnums:
 
-This document describes the HTTP API ROUTES for the projects that can be created in the test plataform TESTFLOW.
+Esta documentação descreve as operações disponíveis para gerenciamento de projetos.
 
-== Create a project
+== Criar projeto
 
-Creates a project and returns its generated identifier and name.
-
-=== Request
+Requisição:
 
 include::{snippets}/projects/create/http-request.adoc[]
 
+Campos da requisição:
+
 include::{snippets}/projects/create/request-fields.adoc[]
 
-=== Response
+Resposta:
 
 include::{snippets}/projects/create/http-response.adoc[]
 
+Campos da resposta:
+
 include::{snippets}/projects/create/response-fields.adoc[]
 
-== List projects
+== Listar projetos
 
-Returns all projects.
+Requisição:
 
-=== Response
+include::{snippets}/projects/list/http-request.adoc[]
+
+Resposta:
 
 include::{snippets}/projects/list/http-response.adoc[]
 
+Campos da resposta:
+
 include::{snippets}/projects/list/response-fields.adoc[]
 
-== Get a project
+== Buscar projeto por identificador
 
-Returns a project by its identifier.
+Requisição:
 
-=== Path parameters
+include::{snippets}/projects/get-by-id/http-request.adoc[]
+
+Parâmetros do caminho:
 
 include::{snippets}/projects/get-by-id/path-parameters.adoc[]
 
-=== Response
+Resposta:
 
 include::{snippets}/projects/get-by-id/http-response.adoc[]
 
+Campos da resposta:
+
 include::{snippets}/projects/get-by-id/response-fields.adoc[]
 
-== Update a project
+== Atualizar projeto
 
-Updates the name of a project.
-
-=== Path parameters
-
-include::{snippets}/projects/update/path-parameters.adoc[]
-
-=== Request
+Requisição:
 
 include::{snippets}/projects/update/http-request.adoc[]
 
+Parâmetros do caminho:
+
+include::{snippets}/projects/update/path-parameters.adoc[]
+
+Campos da requisição:
+
 include::{snippets}/projects/update/request-fields.adoc[]
 
-=== Response
+Resposta:
 
 include::{snippets}/projects/update/http-response.adoc[]
 
+Campos da resposta:
+
 include::{snippets}/projects/update/response-fields.adoc[]
 
-== Delete a project
+== Excluir projeto
 
-Deletes a project by its identifier. A successful deletion returns no content.
+Requisição:
 
-=== Path parameters
+include::{snippets}/projects/delete/http-request.adoc[]
+
+Parâmetros do caminho:
 
 include::{snippets}/projects/delete/path-parameters.adoc[]
 
-=== Response
+Resposta:
 
 include::{snippets}/projects/delete/http-response.adoc[]
