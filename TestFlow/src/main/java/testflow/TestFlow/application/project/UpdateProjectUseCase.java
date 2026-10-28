@@ -1,11 +1,11 @@
-package testflow.TestFlow.application;
+package testflow.TestFlow.application.project;
 
 import org.springframework.stereotype.Service;
-import testflow.TestFlow.application.input.UpdateProjectInput;
-import testflow.TestFlow.application.output.ProjectOutput;
-import testflow.TestFlow.domain.ProjectId;
-import testflow.TestFlow.domain.ProjectNotFoundException;
-import testflow.TestFlow.domain.ProjectRepository;
+import testflow.TestFlow.application.project.input.UpdateProjectInput;
+import testflow.TestFlow.application.project.output.ProjectOutput;
+import testflow.TestFlow.domain.project.ProjectId;
+import testflow.TestFlow.domain.project.ProjectNotFoundException;
+import testflow.TestFlow.domain.project.ProjectRepository;
 
 @Service
 public class UpdateProjectUseCase {

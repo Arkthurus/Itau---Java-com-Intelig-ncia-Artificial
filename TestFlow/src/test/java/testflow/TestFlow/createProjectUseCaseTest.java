@@ -2,9 +2,9 @@ package testflow.TestFlow;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import testflow.TestFlow.application.CreateProjectUseCase;
-import testflow.TestFlow.application.input.CreateProjectInput;
-import testflow.TestFlow.application.output.ProjectOutput;
+import testflow.TestFlow.application.project.CreateProjectUseCase;
+import testflow.TestFlow.application.project.input.CreateProjectInput;
+import testflow.TestFlow.application.project.output.ProjectOutput;
 
 
 import static org.junit.jupiter.api.Assertions.assertEquals;

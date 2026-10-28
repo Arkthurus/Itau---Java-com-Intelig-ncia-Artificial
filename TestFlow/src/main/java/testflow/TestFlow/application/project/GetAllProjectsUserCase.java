@@ -1,10 +1,8 @@
-package testflow.TestFlow.application;
+package testflow.TestFlow.application.project;
 
 import org.springframework.stereotype.Service;
-import testflow.TestFlow.application.input.CreateProjectInput;
-import testflow.TestFlow.application.output.ProjectOutput;
-import testflow.TestFlow.domain.Project;
-import testflow.TestFlow.domain.ProjectRepository;
+import testflow.TestFlow.application.project.output.ProjectOutput;
+import testflow.TestFlow.domain.project.ProjectRepository;
 
 import java.util.List;
 

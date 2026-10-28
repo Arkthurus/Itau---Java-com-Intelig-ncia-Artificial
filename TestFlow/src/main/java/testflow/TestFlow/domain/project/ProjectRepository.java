@@ -1,4 +1,4 @@
-package testflow.TestFlow.domain;
+package testflow.TestFlow.domain.project;
 
 import java.util.List;
 import java.util.Optional;

@@ -1,8 +1,8 @@
-package testflow.TestFlow.infrastructure.repository.http.request;
+package testflow.TestFlow.infrastructure.repository.project.http.request;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
-import testflow.TestFlow.application.input.CreateProjectInput;
+import testflow.TestFlow.application.project.input.CreateProjectInput;
 
 public record CreateProjectRequest(
         @NotBlank

@@ -1,8 +1,8 @@
-package testflow.TestFlow.infrastructure.repository.http.request;
+package testflow.TestFlow.infrastructure.repository.project.http.request;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
-import testflow.TestFlow.application.input.UpdateProjectInput;
+import testflow.TestFlow.application.project.input.UpdateProjectInput;
 
 public record UpdateProjectRequest(
         @NotBlank @Size(min = 3, max = 100) String newName

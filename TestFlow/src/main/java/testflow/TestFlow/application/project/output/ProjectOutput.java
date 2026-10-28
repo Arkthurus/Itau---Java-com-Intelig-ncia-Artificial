@@ -1,6 +1,6 @@
-package testflow.TestFlow.application.output;
+package testflow.TestFlow.application.project.output;
 
-import testflow.TestFlow.domain.Project;
+import testflow.TestFlow.domain.project.Project;
 
 public record ProjectOutput(String id, String name) {
 

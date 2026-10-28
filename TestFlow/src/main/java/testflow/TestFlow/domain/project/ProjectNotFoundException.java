@@ -1,4 +1,4 @@
-package testflow.TestFlow.domain;
+package testflow.TestFlow.domain.project;
 
 public class ProjectNotFoundException extends RuntimeException {
     public ProjectNotFoundException(ProjectId id) {

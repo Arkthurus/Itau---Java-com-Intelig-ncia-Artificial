@@ -1,4 +1,4 @@
-package testflow.TestFlow.infrastructure.repository.http;
+package testflow.TestFlow.infrastructure.repository.project.http;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.FieldError;
@@ -6,7 +6,7 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
-import testflow.TestFlow.domain.ProjectNotFoundException;
+import testflow.TestFlow.domain.project.ProjectNotFoundException;
 
 import java.util.HashMap;
 import java.util.Map;

@@ -1,4 +1,4 @@
-package testflow.TestFlow.infrastructure.repository.http;
+package testflow.TestFlow.infrastructure.repository.project.http;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

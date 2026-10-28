@@ -1,11 +1,9 @@
-package testflow.TestFlow.domain;
+package testflow.TestFlow.domain.project;
 
 import java.lang.String;
 
 import lombok.Getter;
 import lombok.Setter;
-import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.context.annotation.EnableMBeanExport;
 import org.springframework.util.Assert;
 
 @Getter
@@ -15,7 +13,7 @@ public class Project {
     private ProjectId id;
     private String name;
 
-    public Project(String name){
+    public Project(ProjectId projectId, String name){
 
         Assert.notNull(id, "Id must not be null");
         Assert.notNull(name, "Project Name must not be null");

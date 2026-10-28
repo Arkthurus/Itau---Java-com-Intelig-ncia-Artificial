@@ -1,18 +1,14 @@
-package testflow.TestFlow.infrastructure.repository.http;
+package testflow.TestFlow.infrastructure.repository.project.http;
 
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import testflow.TestFlow.application.*;
-import testflow.TestFlow.application.input.CreateProjectInput;
-import testflow.TestFlow.domain.Project;
-import testflow.TestFlow.domain.ProjectId;
-import testflow.TestFlow.infrastructure.repository.http.request.CreateProjectRequest;
-import testflow.TestFlow.infrastructure.repository.http.request.UpdateProjectRequest;
-import testflow.TestFlow.infrastructure.repository.http.response.ProjectResponse;
+import testflow.TestFlow.application.project.*;
+import testflow.TestFlow.domain.project.ProjectId;
+import testflow.TestFlow.infrastructure.repository.project.http.request.CreateProjectRequest;
+import testflow.TestFlow.infrastructure.repository.project.http.request.UpdateProjectRequest;
+import testflow.TestFlow.infrastructure.repository.project.http.response.ProjectResponse;
 
-import java.io.InputStream;
 import java.util.List;
 import java.util.UUID;
 
@@ -20,9 +16,9 @@ import java.util.UUID;
 @RequestMapping("/projects")
 public class ProjectController {
     private CreateProjectUseCase createProjectUseCase;
-    private GetAllProjectsUserCase  getAllProjectsUserCase;
+    private GetAllProjectsUserCase getAllProjectsUserCase;
     private GetProjectByIdUserCase getProjectByIdUserCase;
-    private UpdateProjectUseCase  updateProjectUseCase;
+    private UpdateProjectUseCase updateProjectUseCase;
     private DeleteProjectUseCase deleteProjectUseCase;
 
     public ProjectController(CreateProjectUseCase createProjectUseCase, GetAllProjectsUserCase getAllProjectsUserCase, GetProjectByIdUserCase getProjectByIdUserCase, UpdateProjectUseCase updateProjectUseCase, DeleteProjectUseCase deleteProjectUseCase){
