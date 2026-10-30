@@ -16,9 +16,9 @@ public class UpdateProjectUseCase {
     }
 
     public ProjectOutput execute(ProjectId id, UpdateProjectInput input){
-        var project = projectRepository.findById(id).orElseThrow(() -> new ProjectNotFoundException(id));
-        project.update(input.name());
-        var updated = projectRepository.save(project);
-        return ProjectOutput.from(project);
+        if (!projectRepository.updateName(id, input.name())){
+            throw new ProjectNotFoundException(id);
+        }
+        return new ProjectOutput(id.id().toString(), input.name());
     }
 }

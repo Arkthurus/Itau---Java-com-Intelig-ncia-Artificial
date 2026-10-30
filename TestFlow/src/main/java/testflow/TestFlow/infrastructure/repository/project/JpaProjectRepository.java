@@ -23,7 +23,9 @@ public class JpaProjectRepository implements ProjectRepository {
 
     @Override
     public Project save(Project project) {
-        var entity = mapperToEntity(project);
+        var entity = projectEntityRepository.findById(project.getId().id())
+                .orElseGet(() -> mapperToEntity(project));
+        entity.setName(project.getName());
         projectEntityRepository.save(entity);
         return project;
     }
@@ -31,9 +33,8 @@ public class JpaProjectRepository implements ProjectRepository {
     @Override
     public List<Project> findAll() {
         var iterable = projectEntityRepository.findAll();
-        StreamSupport.stream(iterable.spliterator(), false)
+    return StreamSupport.stream(iterable.spliterator(), false)
                 .map(JpaProjectRepository::mapperToDomain).toList();
-        return new ArrayList<Project>();
     }
 
     @Override
@@ -44,10 +45,13 @@ public class JpaProjectRepository implements ProjectRepository {
 
     @Override
     public void delete(ProjectId id) {
-        projects.remove(id);
-
+        projectEntityRepository.deleteById(id.id());
     }
 
+    @Override
+    public boolean updateName(ProjectId id, String name) {
+        return projectEntityRepository.updateNameById(id.id(), name) > 0;
+    }
 
     private static testflow.TestFlow.infrastructure.entity.project.Project mapperToEntity(Project project) {
 

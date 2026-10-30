@@ -4,7 +4,6 @@ import org.springframework.stereotype.Service;
 import testflow.TestFlow.application.project.input.CreateProjectInput;
 import testflow.TestFlow.application.project.output.ProjectOutput;
 import testflow.TestFlow.domain.project.Project;
-import testflow.TestFlow.domain.project.ProjectId;
 import testflow.TestFlow.domain.project.ProjectRepository;
 
 @Service
@@ -16,7 +15,7 @@ public class CreateProjectUseCase {
     }
 
     public ProjectOutput execute(CreateProjectInput input){
-        var project = new Project(new ProjectId(), input.name());
+        var project = new Project(input.name());
         var saved = projectRepository.save(project);
         return ProjectOutput.from(saved);
     }

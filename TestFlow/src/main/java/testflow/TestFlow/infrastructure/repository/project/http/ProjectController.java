@@ -13,7 +13,7 @@ import java.util.List;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/api/projects")
+@RequestMapping("/projects")
 public class ProjectController {
     private CreateProjectUseCase createProjectUseCase;
     private GetAllProjectsUserCase getAllProjectsUserCase;

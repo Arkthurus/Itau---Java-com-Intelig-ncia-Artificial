@@ -7,9 +7,9 @@ import testflow.TestFlow.application.project.input.CreateProjectInput;
 public record CreateProjectRequest(
         @NotBlank
         @Size(min = 3, max = 100)
-        String projectName
+        String name
 ) {
     public CreateProjectInput toInput(){
-        return new CreateProjectInput(projectName);
+        return new CreateProjectInput(name);
     }
 }

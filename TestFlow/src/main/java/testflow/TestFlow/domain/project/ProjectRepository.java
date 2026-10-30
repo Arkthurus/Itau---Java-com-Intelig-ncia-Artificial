@@ -8,4 +8,5 @@ public interface ProjectRepository {
     List<Project> findAll();
     Optional<Project> findById(ProjectId id);
     void delete(ProjectId id);
+    boolean updateName(ProjectId id, String name);
 }
