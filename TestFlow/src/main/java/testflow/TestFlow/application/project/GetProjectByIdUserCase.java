@@ -1,5 +1,6 @@
 package testflow.TestFlow.application.project;
 
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import testflow.TestFlow.application.project.output.ProjectOutput;
 import testflow.TestFlow.domain.project.ProjectId;
@@ -14,6 +15,7 @@ public class GetProjectByIdUserCase {
         this.projectRepository = projectRepository;
     }
 
+    @Cacheable(value = "projects", key = "#id.id()")
     public ProjectOutput execute(ProjectId id){
         return projectRepository.findById(id).map(ProjectOutput::from).orElseThrow(() -> new ProjectNotFoundException(id));
     }
