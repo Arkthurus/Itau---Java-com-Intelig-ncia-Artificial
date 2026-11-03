@@ -15,6 +15,7 @@ services:
       interval: 5s
       timeout: 5s
       retries: 5
+    restart: unless-stopped
 
   project-cache:
     image: redis:8.6
@@ -25,6 +26,6 @@ services:
       interval: 5s
       timeout: 5s
       retries: 3
-
+    restart: unless-stopped
 volumes:
   testflow_data:

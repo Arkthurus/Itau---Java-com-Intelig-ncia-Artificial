@@ -44,6 +44,7 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-hateoas'
     implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:3.0.0'
     implementation 'org.springframework.boot:spring-boot-starter-data-redis'
+    implementation 'org.springframework.boot:spring-boot-starter-cache'
     implementation 'redis.clients:jedis'
 
     testImplementation 'org.springframework.restdocs:spring-restdocs-mockmvc'

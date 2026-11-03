@@ -3,6 +3,7 @@ package testflow.TestFlow.infrastructure.event;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.event.EventListener;
 import org.springframework.data.repository.query.Param;
 import org.springframework.data.rest.core.annotation.HandleAfterCreate;
 import org.springframework.data.rest.core.annotation.HandleAfterDelete;
@@ -22,21 +23,27 @@ public class ProjectEventHandler {
     private static final Logger LOG = LoggerFactory.getLogger(ProjectEventHandler.class);
 
     @Async
-    @HandleAfterCreate
-    public void handleAfterCreate(Project project) {
-        LOG.warn("Handling after Create");
+    @EventListener
+    public void handleAfterCreate(ProjectCreatedEvent event) {
+        LOG.warn("Projeto {} criado em {}ms", event.projectId(), event.durationMs());
     }
 
     @Async
-    @HandleAfterSave
-    public void handleAfterSave(Project project) {
-        LOG.warn("Handling after save");
+    @EventListener
+    public void handleAfterUpdate(ProjectUpdatedEvent event) {
+        LOG.warn("Nome Projeto {} atualizado de {} para {} em {}ms", event.projectId(), event.projectName(), event.newProjectName(), event.durationMs());
     }
 
     @Async
-    @HandleAfterDelete
-    public void handleAfterDelete(Project project) {
-        LOG.warn("Handling after delete");
+    @EventListener
+    public void handleProjectViewed(ProjectViewedEvent event) {
+        LOG.info("Projeto {} visualizado em {}ms", event.projectId(), event.durationMs());
+    }
+
+    @Async
+    @EventListener
+    public void handleAfterDelete(ProjectDeletedEvent event) {
+        LOG.info("Projeto {} deletado em {}ms", event.projectId(), event.durationMs());
     }
 
 }
