@@ -1,11 +1,11 @@
 package testflow.TestFlow.infrastructure.repository.project;
 
-import org.apache.catalina.mapper.Mapper;
 import org.springframework.stereotype.Repository;
 import testflow.TestFlow.domain.project.Project;
+import testflow.TestFlow.domain.project.ProjectAlreadyExistException;
 import testflow.TestFlow.domain.project.ProjectId;
-import testflow.TestFlow.domain.project.ProjectNotFoundException;
 import testflow.TestFlow.domain.project.ProjectRepository;
+import testflow.TestFlow.infrastructure.entity.project.ProjectEntity;
 
 import java.util.*;
 import java.util.stream.StreamSupport;
@@ -23,9 +23,12 @@ public class JpaProjectRepository implements ProjectRepository {
 
     @Override
     public Project save(Project project) {
-        var entity = projectEntityRepository.findById(project.getId().id())
-                .orElseGet(() -> mapperToEntity(project));
-        entity.setName(project.getName());
+        if (projectEntityRepository.existsById(project.getId().id())) {
+            throw new ProjectAlreadyExistException(project.getId(), project.getName());
+        }
+
+        var entity = mapperToEntity(project);
+
         projectEntityRepository.save(entity);
         return project;
     }
@@ -53,9 +56,9 @@ public class JpaProjectRepository implements ProjectRepository {
         return projectEntityRepository.updateNameById(id.id(), name) > 0;
     }
 
-    private static testflow.TestFlow.infrastructure.entity.project.Project mapperToEntity(Project project) {
+    private static ProjectEntity mapperToEntity(Project project) {
 
-        var entity = new testflow.TestFlow.infrastructure.entity.project.Project();
+        var entity = new ProjectEntity();
 
         entity.setId(project.getId().id());
         entity.setName(project.getName());
@@ -64,7 +67,7 @@ public class JpaProjectRepository implements ProjectRepository {
     }
 
     private static Project mapperToDomain(
-            testflow.TestFlow.infrastructure.entity.project.Project entity) {
+            ProjectEntity entity) {
 
         return new Project(new ProjectId(entity.getId()), entity.getName());
     }

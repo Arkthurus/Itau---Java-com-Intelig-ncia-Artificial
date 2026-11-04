@@ -32,7 +32,7 @@ public class Folder {
     public Folder(FolderId folderId, String name, ProjectId projectId, @Nullable FolderId parentFolderId) {
 
         Assert.notNull(folderId, "Id da pasta não pode ser nulo");
-        Assert.notNull(name, "Nome da Pasta não pode ser vazio");
+        Assert.hasText(name, "Nome da Pasta não pode ser vazio");
         Assert.notNull(projectId, "projectId não poder ser nulo.");
 
         this.id = folderId;
