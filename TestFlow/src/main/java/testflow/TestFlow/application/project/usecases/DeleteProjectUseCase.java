@@ -1,4 +1,4 @@
-package testflow.TestFlow.application.project;
+package testflow.TestFlow.application.project.usecases;
 
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.context.ApplicationEventPublisher;

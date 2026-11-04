@@ -12,11 +12,13 @@ public class Project {
     private ProjectId id;
     private String name;
 
+    //Construtor de criação
     public Project(String name) {
         this.id =  new ProjectId();
         this.name = name;
     }
 
+    //Construtor de consulta ao banco
     public Project(ProjectId projectId, String name){
 
         Assert.notNull(projectId, "Id must not be null");
@@ -26,9 +28,4 @@ public class Project {
         this.name = name;
 
     }
-
-    public void update(String name){
-        this.name = name;
-    }
-
 }

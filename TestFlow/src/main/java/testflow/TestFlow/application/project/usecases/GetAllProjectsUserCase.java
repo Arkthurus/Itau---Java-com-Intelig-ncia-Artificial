@@ -1,4 +1,4 @@
-package testflow.TestFlow.application.project;
+package testflow.TestFlow.application.project.usecases;
 
 import org.springframework.stereotype.Service;
 import testflow.TestFlow.application.project.output.ProjectOutput;

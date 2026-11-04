@@ -3,7 +3,7 @@ package testflow.TestFlow.infrastructure.repository.project.http;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
-import testflow.TestFlow.application.project.*;
+import testflow.TestFlow.application.project.usecases.*;
 import testflow.TestFlow.domain.project.ProjectId;
 import testflow.TestFlow.infrastructure.repository.project.http.request.CreateProjectRequest;
 import testflow.TestFlow.infrastructure.repository.project.http.request.UpdateProjectRequest;

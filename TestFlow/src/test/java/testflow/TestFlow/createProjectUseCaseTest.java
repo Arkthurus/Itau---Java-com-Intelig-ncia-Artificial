@@ -2,7 +2,7 @@ package testflow.TestFlow;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import testflow.TestFlow.application.project.CreateProjectUseCase;
+import testflow.TestFlow.application.project.usecases.CreateProjectUseCase;
 import testflow.TestFlow.application.project.input.CreateProjectInput;
 import testflow.TestFlow.application.project.output.ProjectOutput;
 

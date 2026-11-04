@@ -1,4 +1,4 @@
-package testflow.TestFlow.application.project;
+package testflow.TestFlow.application.project.usecases;
 
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.context.ApplicationEventPublisher;
@@ -10,8 +10,6 @@ import testflow.TestFlow.domain.project.ProjectId;
 import testflow.TestFlow.domain.project.ProjectNotFoundException;
 import testflow.TestFlow.domain.project.ProjectRepository;
 import testflow.TestFlow.infrastructure.event.ProjectUpdatedEvent;
-
-import java.util.Optional;
 
 @Service
 public class UpdateProjectUseCase {
