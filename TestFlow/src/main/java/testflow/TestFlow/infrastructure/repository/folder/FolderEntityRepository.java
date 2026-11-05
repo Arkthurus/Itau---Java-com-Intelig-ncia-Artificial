@@ -15,7 +15,6 @@ import java.util.List;
 import java.util.UUID;
 
 @RepositoryRestResource(exported = false)
-//ainda falta definir oq vai dentro do <>
 public interface FolderEntityRepository extends PagingAndSortingRepository<FolderEntity, UUID>, CrudRepository<FolderEntity, UUID> {
     List<FolderEntity> findByNameContainingIgnoreCase (@Param("name") String name);
 

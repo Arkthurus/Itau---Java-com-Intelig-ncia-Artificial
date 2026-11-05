@@ -6,7 +6,7 @@ import org.springframework.stereotype.Service;
 import testflow.TestFlow.domain.project.ProjectId;
 import testflow.TestFlow.domain.project.ProjectNotFoundException;
 import testflow.TestFlow.domain.project.ProjectRepository;
-import testflow.TestFlow.infrastructure.event.ProjectDeletedEvent;
+import testflow.TestFlow.infrastructure.event.project.ProjectDeletedEvent;
 
 @Service
 public class DeleteProjectUseCase {

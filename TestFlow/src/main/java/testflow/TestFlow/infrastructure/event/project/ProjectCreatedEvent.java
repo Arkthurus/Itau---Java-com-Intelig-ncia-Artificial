@@ -1,4 +1,4 @@
-package testflow.TestFlow.infrastructure.event;
+package testflow.TestFlow.infrastructure.event.project;
 
 import testflow.TestFlow.domain.project.ProjectId;
 

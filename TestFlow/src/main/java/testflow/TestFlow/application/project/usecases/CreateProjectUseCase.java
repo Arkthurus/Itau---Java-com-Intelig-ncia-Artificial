@@ -6,7 +6,7 @@ import testflow.TestFlow.application.project.input.CreateProjectInput;
 import testflow.TestFlow.application.project.output.ProjectOutput;
 import testflow.TestFlow.domain.project.Project;
 import testflow.TestFlow.domain.project.ProjectRepository;
-import testflow.TestFlow.infrastructure.event.ProjectCreatedEvent;
+import testflow.TestFlow.infrastructure.event.project.ProjectCreatedEvent;
 
 @Service
 public class CreateProjectUseCase {

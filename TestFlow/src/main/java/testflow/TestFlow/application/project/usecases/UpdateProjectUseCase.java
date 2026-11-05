@@ -9,7 +9,7 @@ import testflow.TestFlow.domain.project.Project;
 import testflow.TestFlow.domain.project.ProjectId;
 import testflow.TestFlow.domain.project.ProjectNotFoundException;
 import testflow.TestFlow.domain.project.ProjectRepository;
-import testflow.TestFlow.infrastructure.event.ProjectUpdatedEvent;
+import testflow.TestFlow.infrastructure.event.project.ProjectUpdatedEvent;
 
 @Service
 public class UpdateProjectUseCase {

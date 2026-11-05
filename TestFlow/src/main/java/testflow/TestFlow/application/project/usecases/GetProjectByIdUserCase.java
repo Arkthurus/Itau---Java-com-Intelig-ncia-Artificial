@@ -7,8 +7,8 @@ import testflow.TestFlow.application.project.output.ProjectOutput;
 import testflow.TestFlow.domain.project.ProjectId;
 import testflow.TestFlow.domain.project.ProjectNotFoundException;
 import testflow.TestFlow.domain.project.ProjectRepository;
-import testflow.TestFlow.infrastructure.event.ProjectEventHandler;
-import testflow.TestFlow.infrastructure.event.ProjectViewedEvent;
+import testflow.TestFlow.infrastructure.event.project.ProjectEventHandler;
+import testflow.TestFlow.infrastructure.event.project.ProjectViewedEvent;
 
 @Service
 public class GetProjectByIdUserCase {

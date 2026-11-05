@@ -7,26 +7,25 @@ import jakarta.persistence.Id;
 import jakarta.persistence.PrePersist;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
-import lombok.Data;
-import lombok.RequiredArgsConstructor;
+import lombok.*;
 
 import java.time.Instant;
 import java.util.UUID;
 
+@Setter
+@Getter
 @Entity
-@Data
-@RequiredArgsConstructor
+@NoArgsConstructor
 public class FolderEntity {
     @Id
     private UUID id;
     @NotBlank
-    @Column(nullable = false, unique = true,  length = 60)
+    @Column(nullable = false, length = 60)
     private String name;
     @NotNull
     private UUID projectId;
     @Nullable
     private UUID parentFolderId;
-    @Nullable
     @Column(nullable = false, updatable = false)
     private Instant createdOn;
 
