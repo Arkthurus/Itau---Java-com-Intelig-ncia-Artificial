@@ -1,12 +1,11 @@
 package testflow.TestFlow.infrastructure.entity.folder;
 
 import jakarta.annotation.Nullable;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.PrePersist;
+import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import jakarta.persistence.Table;
+
 import lombok.*;
 
 import java.time.Instant;
@@ -15,6 +14,7 @@ import java.util.UUID;
 @Setter
 @Getter
 @Entity
+@Table(name = "folder")
 @NoArgsConstructor
 public class FolderEntity {
     @Id
