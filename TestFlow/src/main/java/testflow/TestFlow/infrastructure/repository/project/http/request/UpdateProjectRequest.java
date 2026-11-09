@@ -5,7 +5,9 @@ import jakarta.validation.constraints.Size;
 import testflow.TestFlow.application.project.input.UpdateProjectInput;
 
 public record UpdateProjectRequest(
-        @NotBlank @Size(min = 3, max = 100) String newName
+        @NotBlank
+        @Size(min = 3, max = 100)
+        String newName
 ){
     public UpdateProjectInput toInput(){
         return new UpdateProjectInput(newName);

@@ -1,6 +1,7 @@
 package testflow.TestFlow.domain.folder;
 
 import testflow.TestFlow.domain.project.ProjectId;
+import jakarta.annotation.Nullable;
 
 import java.util.List;
 import java.util.Optional;
@@ -11,6 +12,7 @@ public interface FolderRepository {
     List<Folder> findAll();
     void delete(FolderId id);
     boolean updateName(FolderId id, String name);
-    List<Folder> findFolderByProjectId(ProjectId projectId);
+    boolean updateParentFolder(FolderId id, @Nullable FolderId parentFolderId);
+    List<Folder> findRootFoldersByProjectId(ProjectId projectId);
     List<Folder> findByParentFolderId(FolderId parentFolderId);
 }

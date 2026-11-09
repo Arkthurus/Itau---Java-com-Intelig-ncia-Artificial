@@ -16,10 +16,24 @@ import java.util.UUID;
 
 @RepositoryRestResource(exported = false)
 public interface FolderEntityRepository extends PagingAndSortingRepository<FolderEntity, UUID>, CrudRepository<FolderEntity, UUID> {
+    //Busca pastas cujo nome contenha o texto informado, sem diferenciar maiusculas de minusculas
     List<FolderEntity> findByNameContainingIgnoreCase (@Param("name") String name);
+
+    //Busca as pastas raiz de um projeto, que nao possuem pasta pai
+    List<FolderEntity> findByProjectIdAndParentFolderIdIsNull(UUID projectId);
+
+    //Busca as pastas filhas da pasta informada
+    List<FolderEntity> findByParentFolderId(UUID parentFolderId);
 
     @Modifying
     @Transactional
+    //Atualiza o nome da pasta com o ID informado
     @Query("update FolderEntity f set f.name = :name where f.id = :id")
     int updateNameById(@Param("id") UUID id, @Param("name") String name);
+
+    @Modifying
+    @Transactional
+    //Atualiza a pasta pai; um ID nulo deixa a pasta como raiz
+    @Query("update FolderEntity f set f.parentFolderId = :parentFolderId where f.id = :id")
+    int updateParentFolderById(@Param("id") UUID id, @Param("parentFolderId") UUID parentFolderId);
 }

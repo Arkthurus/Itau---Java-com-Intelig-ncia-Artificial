@@ -12,7 +12,7 @@ public class FolderProjectMismatchException extends RuntimeException {
     ) {
         super(
                 "A pasta '" + newFolderName
-                        + "' não pode ser criada dentro da pasta pai '"
+                        + "' não pode ficar dentro da pasta pai '"
                         + parentFolderName
                         + "', pois pertencem a projetos diferentes. "
                         + "ProjectId da pasta pai: " + parentFolderProjectId

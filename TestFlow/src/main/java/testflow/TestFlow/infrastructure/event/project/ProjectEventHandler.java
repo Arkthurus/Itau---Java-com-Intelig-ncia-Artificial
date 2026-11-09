@@ -2,6 +2,7 @@ package testflow.TestFlow.infrastructure.event.project;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.context.event.EventListener;
 import org.springframework.data.rest.core.annotation.RepositoryEventHandler;
 import org.springframework.scheduling.annotation.Async;
@@ -9,6 +10,7 @@ import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.event.TransactionPhase;
 import org.springframework.transaction.event.TransactionalEventListener;
+import testflow.TestFlow.infrastructure.event.folder.FolderUpdatedEvent;
 
 @Component
 @RepositoryEventHandler
@@ -38,6 +40,18 @@ public class ProjectEventHandler {
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     public void handleAfterDelete(ProjectDeletedEvent event) {
         LOG.info("Projeto {} deletado em {}ms", event.projectId(), event.durationMs());
+    }
+
+    //Cache de Update
+    @CacheEvict(cacheNames = "projects", key = "#event.project().id()")
+    @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
+    public void evictUpdatedProject(ProjectUpdatedEvent event) {
+    }
+
+    //GetAll
+    @EventListener
+    public void handleProjectsListed(ProjectsListedEvent event) {
+        LOG.info("Listados {} projetos em {}ms", event.count(), event.duration());
     }
 
 }

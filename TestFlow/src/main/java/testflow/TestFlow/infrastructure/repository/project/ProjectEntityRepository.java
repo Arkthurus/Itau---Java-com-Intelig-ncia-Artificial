@@ -14,10 +14,12 @@ import java.util.UUID;
 
 @RepositoryRestResource(exported = false)
 public interface ProjectEntityRepository extends PagingAndSortingRepository<ProjectEntity, UUID>, CrudRepository<ProjectEntity, UUID> {
+        //Busca projetos cujo nome contenha o texto informado, sem diferenciar maiusculas de minusculas
         List<ProjectEntity> findByNameContainingIgnoreCase (@Param("name") String name);
 
         @Modifying
         @Transactional
+        //Atualiza o nome do projeto com o ID informado
         @Query("update ProjectEntity p set p.name = :name where p.id = :id")
         int updateNameById(@Param("id") UUID id, @Param("name") String name);
 }

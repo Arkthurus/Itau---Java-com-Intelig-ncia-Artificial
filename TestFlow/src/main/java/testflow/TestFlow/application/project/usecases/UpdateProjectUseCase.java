@@ -3,6 +3,7 @@ package testflow.TestFlow.application.project.usecases;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import testflow.TestFlow.application.project.input.UpdateProjectInput;
 import testflow.TestFlow.application.project.output.ProjectOutput;
 import testflow.TestFlow.domain.project.Project;
@@ -21,7 +22,8 @@ public class UpdateProjectUseCase {
         this.eventPublisher = eventPublisher;
     }
 
-    @CacheEvict(value = "projects", key = "#id.id()")
+    @Transactional
+//    @CacheEvict(value = "projects", key = "#id.id()")
     public ProjectOutput execute(ProjectId id, UpdateProjectInput input) {
         long start = System.nanoTime();
 

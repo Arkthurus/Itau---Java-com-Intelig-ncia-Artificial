@@ -1,7 +1,7 @@
 # TestFlow --- Documento de Arquitetura e Regras de Negócio
 
-**Versão:** 1.1\
-**Atualização:** 05/11/2026\
+**Versão:** 1.2\
+**Atualização:** 09/11/2026\
 **Objetivo:** manter o contexto arquitetural, as decisões de negócio e o
 andamento da implementação do TestFlow para continuidade do
 desenvolvimento em outras sessões ou ferramentas.
@@ -483,22 +483,45 @@ via `ApplicationEventPublisher`. - Eventos de visualização podem não
 ocorrer dentro de transação; avaliar `@EventListener` comum para esses
 casos.
 
-## 14. Funcionalidades específicas de Folder --- sequência sugerida
+## 14. Funcionalidades específicas de Folder --- andamento
 
-Após finalizar CRUD: 1. `FindRootFoldersByProjectIdUseCase`: buscar
-pastas do projeto com `parentFolderId == null`. 2.
-`FindSubFoldersUseCase`: buscar somente filhos imediatos de uma pasta.
-3. `MoveFolderUseCase`: mover pasta, validar mesmo projeto e impedir
-ciclos. 4. `FindFolderPathUseCase`: obter caminho hierárquico, se
-necessário. 5. `FindFolderTreeByProjectIdUseCase`: montar árvore para o
-frontend.
+Implementados:
 
-Para montar a árvore inicialmente, buscar todas as pastas do projeto em
-uma consulta e montar a hierarquia em memória, evitando uma consulta por
-nível.
+- `FindRootFoldersByProjectIdUseCase`: lista as pastas raiz de um projeto
+  (`parentFolderId == null`).
+- `FindSubFoldersUseCase`: lista as filhas imediatas de uma pasta.
+- `MoveFolderUseCase`: movimenta uma pasta, valida se o projeto pai é o
+  mesmo e impede movimentações que criariam ciclos.
+- `FindFolderTreeByProjectIdUseCase`: monta a árvore completa de pastas
+  do projeto, começando pelas raízes e buscando recursivamente os
+  descendentes.
 
-`ReorderFoldersUseCase` fica para depois e exigiria um atributo de
-ordenação.
+`FindFolderTreeByProjectIdUseCase` retorna uma lista de
+`FolderTreeOutput`, que contém os dados da pasta e uma lista `children`
+com as subárvores. O use case mantém os IDs do caminho atual durante a
+recursão para detectar ciclos; remove cada ID ao sair do ramo para não
+confundir pastas irmãs com ciclos.
+
+Após montar a árvore, o use case conta recursivamente as pastas e publica
+`FolderTreeListedEvent` com o ID do projeto, a quantidade total de pastas
+e a duração da consulta/montagem. `FolderEventHandler` recebe o evento
+com `@EventListener` e registra essas informações.
+
+Testes adicionados para árvore com vários níveis, projeto sem raízes,
+detecção de ciclo e publicação do evento.
+
+Pontos a considerar:
+
+- A implementação atual consulta os filhos de cada pasta durante a
+  recursão. Em árvores grandes isso pode gerar várias consultas ao banco;
+  avaliar futuramente buscar todas as pastas do projeto em lote e montar
+  a hierarquia em memória.
+- Ainda não foi criado endpoint HTTP para expor a árvore; não há
+  `FolderController` na estrutura atual.
+- `FindFolderPathUseCase` pode ser criado se houver necessidade de obter
+  somente o caminho ancestral de uma pasta.
+- `ReorderFoldersUseCase` fica para depois e exigiria um atributo de
+  ordenação.
 
 ## 15. Pendências imediatas / próximos passos
 
@@ -516,8 +539,7 @@ ordenação.
     `spring.jpa.hibernate.ddl-auto`.
 5.  Decidir e implementar as FKs via SQL quando o schema estiver
     confirmado. Ainda não foi criado `schema.sql` nem migration.
-6.  Implementar e testar as consultas por projeto e por pasta pai.
-7.  Escrever testes para criação de pasta raiz e subpasta, projeto
+6.  Escrever testes para criação de pasta raiz e subpasta, projeto
     inexistente, pasta pai inexistente e divergência de projeto.
 
 ### Cenários de teste de criação

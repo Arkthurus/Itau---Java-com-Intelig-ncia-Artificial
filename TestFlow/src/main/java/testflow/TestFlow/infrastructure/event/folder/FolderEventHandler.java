@@ -32,7 +32,21 @@ public class FolderEventHandler {
 
     @Async
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
-    public void handleProjectViewed(FolderViewedEvent event) {
+    public void handleAfterMove(FolderMovedEvent event) {
+        LOG.info("Pasta {} movida de {} para {} em {}ms",
+                event.folderId(), event.oldParentFolderId(), event.newParentFolderId(), event.durationMs());
+    }
+
+    @CacheEvict(cacheNames = "folders", key = "#event.folderId().id()")
+    @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
+    public void evictMovedFolder(FolderMovedEvent event) {
+    }
+
+
+    //Get{id}
+    @Async
+    @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
+    public void handleFolderViewed(FolderViewedEvent event) {
         LOG.info("Projeto {} visualizado em {}ms", event.folderId(), event.duration());
     }
 
@@ -42,10 +56,25 @@ public class FolderEventHandler {
         LOG.info("Projeto {} deletado em {}ms", event.folderId(), event.duration());
     }
 
-
+    //Cache do Update
     @CacheEvict(cacheNames = "folders", key = "#event.folderId().id()")
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     public void evictUpdatedFolder(FolderUpdatedEvent event) {
     }
-}
 
+    //GetAll
+    @EventListener
+    public void handleFoldersListed(FoldersListedEvent event) {
+        LOG.info("Listada(s) {} pasta(s) em {}ms", event.count(), event.duration());
+    }
+
+    @EventListener
+    public void handleFolderTreeListed(FolderTreeListedEvent event) {
+        LOG.info(
+                "Arvore do projeto {} listada com {} pasta(s) em {}ms",
+                event.projectId(),
+                event.count(),
+                event.durationMs()
+        );
+    }
+}

@@ -25,9 +25,9 @@ public class DeleteProjectUseCase {
             throw new ProjectNotFoundException(id);
         }
 
+        projectRepository.delete(id);
+
         long duration = (System.nanoTime() - start) / 1_000_000;
         eventPublisher.publishEvent(new ProjectDeletedEvent(id, duration));
-
-        projectRepository.delete(id);
     }
 }

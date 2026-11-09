@@ -1,4 +1,10 @@
 package testflow.TestFlow.application.project.input;
 
-public record UpdateProjectInput(String name) {
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
+
+public record UpdateProjectInput(
+        @NotBlank
+        @Size(min = 3, max = 100)
+        String name) {
 }
