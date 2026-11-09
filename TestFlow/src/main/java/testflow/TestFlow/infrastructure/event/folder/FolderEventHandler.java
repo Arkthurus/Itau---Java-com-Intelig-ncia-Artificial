@@ -2,6 +2,7 @@ package testflow.TestFlow.infrastructure.event.folder;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.context.event.EventListener;
 import org.springframework.data.rest.core.annotation.RepositoryEventHandler;
 import org.springframework.scheduling.annotation.Async;
@@ -26,7 +27,7 @@ public class FolderEventHandler {
     @Async
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     public void handleAfterUpdate(FolderUpdatedEvent event) {
-        LOG.warn("Nome Projeto {} atualizado de {} para {} em {}ms", event.folderId(), event.folderName(), event.newFolderName(), event.duration());
+        LOG.warn("Nome Projeto {} atualizado de {} para {} em {}ms", event.folderId(), event.oldFolderName(), event.newFolderName(), event.duration());
     }
 
     @Async
@@ -40,4 +41,11 @@ public class FolderEventHandler {
     public void handleAfterDelete(FolderDeletedEvent event) {
         LOG.info("Projeto {} deletado em {}ms", event.folderId(), event.duration());
     }
+
+
+    @CacheEvict(cacheNames = "folders", key = "#event.folderId().id()")
+    @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
+    public void evictUpdatedFolder(FolderUpdatedEvent event) {
+    }
 }
+

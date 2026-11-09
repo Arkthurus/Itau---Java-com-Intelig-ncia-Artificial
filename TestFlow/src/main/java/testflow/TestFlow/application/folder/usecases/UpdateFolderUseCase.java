@@ -23,7 +23,7 @@ public class UpdateFolderUseCase {
     }
 
     @Transactional
-    @CacheEvict(value = "folders", key = "#id.id()", beforeInvocation = false)
+//    @CacheEvict(value = "folders", key = "#id.id()", beforeInvocation = false)
     public FolderOutput execute (FolderId id, UpdateFolderInput input){
         long start = System.nanoTime();
 
