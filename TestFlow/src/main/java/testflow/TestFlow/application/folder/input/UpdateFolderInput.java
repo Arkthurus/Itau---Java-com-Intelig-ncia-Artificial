@@ -1,4 +1,10 @@
 package testflow.TestFlow.application.folder.input;
 
-public record UpdateFolderInput(String name) {
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
+
+public record UpdateFolderInput(
+        @NotBlank
+        @Size(max = 60)
+        String name) {
 }
