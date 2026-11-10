@@ -1,4 +1,4 @@
-package testflow.TestFlow.infrastructure.repository.project.http;
+package testflow.TestFlow.infrastructure.http;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.FieldError;
@@ -6,6 +6,7 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import testflow.TestFlow.domain.folder.*;
 import testflow.TestFlow.domain.project.ProjectNotFoundException;
 
 import java.util.HashMap;
@@ -34,4 +35,27 @@ public class GlobalExceptionHandler {
 
         return errors;
     }
+
+    //Folder Exceptions
+    @ExceptionHandler({FolderNotFoundException.class, ParentFolderNotFoundException.class})
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public String handleFolderNotFoundException(RuntimeException ex) {
+        return ex.getMessage();
+    }
+
+    @ExceptionHandler({
+            FolderProjectMismatchException.class,
+            FolderMoveWouldCreateCycleException.class
+    })
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public String handleInvalidFolderOperation(RuntimeException ex) {
+        return ex.getMessage();
+    }
+
+    @ExceptionHandler(FolderAlreadyExistsExcepiton.class)
+    @ResponseStatus(HttpStatus.CONFLICT)
+    public String handleFolderAlreadyExists(FolderAlreadyExistsExcepiton ex) {
+        return ex.getMessage();
+    }
+    //========================================================================================
 }

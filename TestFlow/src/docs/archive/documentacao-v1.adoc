@@ -1,0 +1,92 @@
+= Documentação do CRUD de Projetos da API do TestFlow
+:toc:
+:toc-title: Índice
+:sectnums:
+
+Esta documentação descreve as operações disponíveis para gerenciamento de projetos.
+
+== Criar projeto
+
+Requisição:
+
+include::{snippets}/projects/create/http-request.adoc[]
+
+Campos da requisição:
+
+include::{snippets}/projects/create/request-fields.adoc[]
+
+Resposta:
+
+include::{snippets}/projects/create/http-response.adoc[]
+
+Campos da resposta:
+
+include::{snippets}/projects/create/response-fields.adoc[]
+
+== Listar projetos
+
+Requisição:
+
+include::{snippets}/projects/list/http-request.adoc[]
+
+Resposta:
+
+include::{snippets}/projects/list/http-response.adoc[]
+
+Campos da resposta:
+
+include::{snippets}/projects/list/response-fields.adoc[]
+
+== Buscar projeto por identificador
+
+Requisição:
+
+include::{snippets}/projects/get-by-id/http-request.adoc[]
+
+Parâmetros do caminho:
+
+include::{snippets}/projects/get-by-id/path-parameters.adoc[]
+
+Resposta:
+
+include::{snippets}/projects/get-by-id/http-response.adoc[]
+
+Campos da resposta:
+
+include::{snippets}/projects/get-by-id/response-fields.adoc[]
+
+== Atualizar projeto
+
+Requisição:
+
+include::{snippets}/projects/update/http-request.adoc[]
+
+Parâmetros do caminho:
+
+include::{snippets}/projects/update/path-parameters.adoc[]
+
+Campos da requisição:
+
+include::{snippets}/projects/update/request-fields.adoc[]
+
+Resposta:
+
+include::{snippets}/projects/update/http-response.adoc[]
+
+Campos da resposta:
+
+include::{snippets}/projects/update/response-fields.adoc[]
+
+== Excluir projeto
+
+Requisição:
+
+include::{snippets}/projects/delete/http-request.adoc[]
+
+Parâmetros do caminho:
+
+include::{snippets}/projects/delete/path-parameters.adoc[]
+
+Resposta:
+
+include::{snippets}/projects/delete/http-response.adoc[]

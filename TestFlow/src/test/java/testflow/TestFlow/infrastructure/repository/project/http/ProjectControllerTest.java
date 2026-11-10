@@ -3,132 +3,166 @@ package testflow.TestFlow.infrastructure.repository.project.http;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.restdocs.RestDocumentationContextProvider;
 import org.springframework.restdocs.RestDocumentationExtension;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
-import org.springframework.web.context.WebApplicationContext;
-import tools.jackson.databind.ObjectMapper;
+import testflow.TestFlow.application.project.output.ProjectOutput;
+import testflow.TestFlow.application.project.usecases.CreateProjectUseCase;
+import testflow.TestFlow.application.project.usecases.DeleteProjectUseCase;
+import testflow.TestFlow.application.project.usecases.GetAllProjectsUseCase;
+import testflow.TestFlow.application.project.usecases.GetProjectByIdUseCase;
+import testflow.TestFlow.application.project.usecases.UpdateProjectUseCase;
+import testflow.TestFlow.domain.project.ProjectId;
+import testflow.TestFlow.domain.project.ProjectNotFoundException;
+import testflow.TestFlow.infrastructure.http.GlobalExceptionHandler;
+
+import java.util.List;
+import java.util.UUID;
 
 import static org.hamcrest.Matchers.hasItem;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.documentationConfiguration;
-import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.delete;
-import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.get;
-import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.put;
 import static org.springframework.restdocs.payload.PayloadDocumentation.fieldWithPath;
 import static org.springframework.restdocs.payload.PayloadDocumentation.requestFields;
 import static org.springframework.restdocs.payload.PayloadDocumentation.responseFields;
 import static org.springframework.restdocs.request.RequestDocumentation.parameterWithName;
 import static org.springframework.restdocs.request.RequestDocumentation.pathParameters;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-
-@ExtendWith({RestDocumentationExtension.class,  SpringExtension.class})
-@SpringBootTest
+@ExtendWith(RestDocumentationExtension.class)
 class ProjectControllerTest {
-
-    MockMvc mockMvc;
-
-    @Autowired
-    ObjectMapper objectMapper;
+    private MockMvc mockMvc;
+    private CreateProjectUseCase createProjectUseCase;
+    private GetAllProjectsUseCase getAllProjectsUseCase;
+    private GetProjectByIdUseCase getProjectByIdUseCase;
+    private UpdateProjectUseCase updateProjectUseCase;
+    private DeleteProjectUseCase deleteProjectUseCase;
 
     @BeforeEach
-    void setUp(WebApplicationContext webApplicationContext, RestDocumentationContextProvider restDocumentation) {
-        this.mockMvc = MockMvcBuilders.webAppContextSetup(webApplicationContext)
+    void setUp(RestDocumentationContextProvider restDocumentation) {
+        createProjectUseCase = mock(CreateProjectUseCase.class);
+        getAllProjectsUseCase = mock(GetAllProjectsUseCase.class);
+        getProjectByIdUseCase = mock(GetProjectByIdUseCase.class);
+        updateProjectUseCase = mock(UpdateProjectUseCase.class);
+        deleteProjectUseCase = mock(DeleteProjectUseCase.class);
+
+        var controller = new ProjectController(
+                createProjectUseCase,
+                getAllProjectsUseCase,
+                getProjectByIdUseCase,
+                updateProjectUseCase,
+                deleteProjectUseCase
+        );
+        mockMvc = MockMvcBuilders.standaloneSetup(controller)
+                .setControllerAdvice(new GlobalExceptionHandler())
                 .apply(documentationConfiguration(restDocumentation))
                 .build();
     }
 
     @Test
-    void deveCriarProjetoEDocumentarRequisicaoEResposta() throws Exception {
+    void createsProjectAndDocumentsRequestAndResponse() throws Exception {
+        UUID id = UUID.randomUUID();
+        when(createProjectUseCase.execute(any())).thenReturn(new ProjectOutput(id.toString(), "Projeto"));
+
         mockMvc.perform(post("/projects")
                         .contentType(APPLICATION_JSON)
-                        .content("""
-                                {"projectName":"Projeto documentado"}
-                                """))
+                        .content("{\"name\":\"Projeto\"}"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.id").isNotEmpty())
-                .andExpect(jsonPath("$.projectName").value("Projeto documentado"))
-                .andDo(document("projects/create",
-                        requestFields(fieldWithPath("projectName").description("Nome do projeto")),
+                .andExpect(jsonPath("$.id").value(id.toString()))
+                .andExpect(jsonPath("$.projectName").value("Projeto"))
+                .andDo(document("projects-v2/create",
+                        requestFields(fieldWithPath("name").description("Nome do projeto")),
                         responseFields(
-                                fieldWithPath("id").description("Identificador único do projeto"),
-                                fieldWithPath("projectName").description("Nome do projeto"))));
+                                fieldWithPath("id").description("ID único do projeto"),
+                                fieldWithPath("projectName").description("Nome do projeto")
+                        )));
     }
 
     @Test
-    void deveListarProjetosEDocumentarResposta() throws Exception {
-        criarProjeto("Projeto listado");
+    void listsProjectsAndDocumentsResponse() throws Exception {
+        when(getAllProjectsUseCase.execute()).thenReturn(List.of(
+                new ProjectOutput(UUID.randomUUID().toString(), "Projeto A"),
+                new ProjectOutput(UUID.randomUUID().toString(), "Projeto B")
+        ));
 
         mockMvc.perform(get("/projects"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$[*].projectName", hasItem("Projeto listado")))
-                .andDo(document("projects/list",
+                .andExpect(jsonPath("$[*].projectName", hasItem("Projeto A")))
+                .andDo(document("projects-v2/list",
                         responseFields(
-                                fieldWithPath("[].id").description("Identificador único do projeto"),
-                                fieldWithPath("[].projectName").description("Nome do projeto"))));
+                                fieldWithPath("[].id").description("ID único do projeto"),
+                                fieldWithPath("[].projectName").description("Nome do projeto")
+                        )));
     }
 
     @Test
-    void deveBuscarProjetoPorIdEDocumentarResposta() throws Exception {
-        String idProjeto = criarProjeto("Detalhes do projeto");
+    void getsProjectByIdAndDocumentsResponse() throws Exception {
+        UUID id = UUID.randomUUID();
+        when(getProjectByIdUseCase.execute(new ProjectId(id)))
+                .thenReturn(new ProjectOutput(id.toString(), "Projeto"));
 
-        mockMvc.perform(get("/projects/{id}", idProjeto))
+        mockMvc.perform(get("/projects/{id}", id))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.id").value(idProjeto))
-                .andExpect(jsonPath("$.projectName").value("Detalhes do projeto"))
-                .andDo(document("projects/get-by-id",
-                        pathParameters(parameterWithName("id").description("Identificador único do projeto")),
+                .andExpect(jsonPath("$.id").value(id.toString()))
+                .andDo(document("projects-v2/get-by-id",
+                        pathParameters(parameterWithName("id").description("ID do projeto")),
                         responseFields(
-                                fieldWithPath("id").description("Identificador único do projeto"),
-                                fieldWithPath("projectName").description("Nome do projeto"))));
+                                fieldWithPath("id").description("ID único do projeto"),
+                                fieldWithPath("projectName").description("Nome do projeto")
+                        )));
     }
 
     @Test
-    void deveAtualizarProjetoEDocumentarRequisicaoEResposta() throws Exception {
-        String idProjeto = criarProjeto("Projeto original");
+    void updatesProjectAndDocumentsRequestAndResponse() throws Exception {
+        UUID id = UUID.randomUUID();
+        when(updateProjectUseCase.execute(any(ProjectId.class), any()))
+                .thenReturn(new ProjectOutput(id.toString(), "Projeto atualizado"));
 
-        mockMvc.perform(put("/projects/{id}", idProjeto)
+        mockMvc.perform(put("/projects/{id}", id)
                         .contentType(APPLICATION_JSON)
-                        .content("""
-                                {"newName":"Projeto atualizado"}
-                                """))
+                        .content("{\"newName\":\"Projeto atualizado\"}"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.id").value(idProjeto))
                 .andExpect(jsonPath("$.projectName").value("Projeto atualizado"))
-                .andDo(document("projects/update",
-                        pathParameters(parameterWithName("id").description("Identificador único do projeto")),
+                .andDo(document("projects-v2/update",
+                        pathParameters(parameterWithName("id").description("ID do projeto")),
                         requestFields(fieldWithPath("newName").description("Novo nome do projeto")),
                         responseFields(
-                                fieldWithPath("id").description("Identificador único do projeto"),
-                                fieldWithPath("projectName").description("Nome atualizado do projeto"))));
+                                fieldWithPath("id").description("ID único do projeto"),
+                                fieldWithPath("projectName").description("Nome atualizado do projeto")
+                        )));
     }
 
     @Test
-    void deveExcluirProjetoEDocumentarResposta() throws Exception {
-        String idProjeto = criarProjeto("Projeto a excluir");
+    void deletesProjectAndDocumentsResponse() throws Exception {
+        UUID id = UUID.randomUUID();
+        doNothing().when(deleteProjectUseCase).execute(new ProjectId(id));
 
-        mockMvc.perform(delete("/projects/{id}", idProjeto))
+        mockMvc.perform(delete("/projects/{id}", id))
                 .andExpect(status().isNoContent())
-                .andDo(document("projects/delete",
-                        pathParameters(parameterWithName("id").description("Identificador único do projeto"))));
+                .andDo(document("projects-v2/delete",
+                        pathParameters(parameterWithName("id").description("ID do projeto"))));
     }
 
-    private String criarProjeto(String nome) throws Exception {
-        MvcResult result = mockMvc.perform(post("/projects")
-                        .contentType(APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(java.util.Map.of("projectName", nome))))
-                .andExpect(status().isOk())
-                .andReturn();
+    @Test
+    void returnsNotFoundWhenProjectDoesNotExist() throws Exception {
+        UUID id = UUID.randomUUID();
+        when(getProjectByIdUseCase.execute(new ProjectId(id)))
+                .thenThrow(new ProjectNotFoundException(new ProjectId(id)));
 
-        return objectMapper.readTree(result.getResponse().getContentAsString()).get("id").asText();
+        mockMvc.perform(get("/projects/{id}", id))
+                .andExpect(status().isNotFound())
+                .andDo(document("projects-v2/not-found",
+                        pathParameters(parameterWithName("id").description("ID do projeto"))));
     }
 }

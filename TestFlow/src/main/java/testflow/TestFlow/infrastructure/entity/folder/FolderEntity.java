@@ -20,7 +20,7 @@ public class FolderEntity {
     @Id
     private UUID id;
     @NotBlank
-    @Column(nullable = false, length = 60)
+    @Column(nullable = false, length = 100)
     private String name;
     @NotNull
     private UUID projectId;

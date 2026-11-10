@@ -6,6 +6,8 @@ import testflow.TestFlow.domain.folder.Folder;
 import testflow.TestFlow.domain.folder.FolderId;
 import testflow.TestFlow.domain.folder.FolderRepository;
 import testflow.TestFlow.domain.project.ProjectId;
+import testflow.TestFlow.domain.project.Project;
+import testflow.TestFlow.domain.project.ProjectRepository;
 
 import java.util.List;
 
@@ -16,23 +18,29 @@ import static org.mockito.Mockito.when;
 
 class FindSubFoldersUseCaseTest {
     private FolderRepository folderRepository;
+    private ProjectRepository projectRepository;
     private FindSubFoldersUseCase useCase;
 
     @BeforeEach
     void setUp() {
         folderRepository = mock(FolderRepository.class);
-        useCase = new FindSubFoldersUseCase(folderRepository);
+        projectRepository = mock(ProjectRepository.class);
+        useCase = new FindSubFoldersUseCase(folderRepository, projectRepository);
     }
 
     @Test
     void returnsDirectSubfoldersForParent() {
         ProjectId projectId = new ProjectId();
         FolderId parentFolderId = new FolderId();
+        Folder parent = new Folder(parentFolderId, "Pai", projectId, null);
+        when(projectRepository.findById(projectId))
+                .thenReturn(java.util.Optional.of(new Project(projectId, "Projeto")));
         Folder child = new Folder("Filha", projectId, parentFolderId);
+        when(folderRepository.findById(parentFolderId)).thenReturn(java.util.Optional.of(parent));
         when(folderRepository.findByParentFolderId(parentFolderId))
                 .thenReturn(List.of(child));
 
-        var result = useCase.execute(parentFolderId);
+        var result = useCase.execute(projectId, parentFolderId);
 
         assertEquals(1, result.size());
         assertEquals(child.getId().id().toString(), result.getFirst().id());
@@ -45,8 +53,13 @@ class FindSubFoldersUseCaseTest {
     @Test
     void returnsEmptyListWhenParentHasNoSubfolders() {
         FolderId parentFolderId = new FolderId();
+        ProjectId projectId = new ProjectId();
+        when(projectRepository.findById(projectId))
+                .thenReturn(java.util.Optional.of(new Project(projectId, "Projeto")));
+        Folder parent = new Folder(parentFolderId, "Pai", projectId, null);
+        when(folderRepository.findById(parentFolderId)).thenReturn(java.util.Optional.of(parent));
         when(folderRepository.findByParentFolderId(parentFolderId)).thenReturn(List.of());
 
-        assertEquals(List.of(), useCase.execute(parentFolderId));
+        assertEquals(List.of(), useCase.execute(projectId, parentFolderId));
     }
 }

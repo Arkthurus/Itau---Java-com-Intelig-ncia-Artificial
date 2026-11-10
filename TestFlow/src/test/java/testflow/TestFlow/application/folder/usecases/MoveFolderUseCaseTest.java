@@ -45,7 +45,7 @@ class MoveFolderUseCaseTest {
         when(folderRepository.findById(newParentId)).thenReturn(Optional.of(newParent));
         when(folderRepository.updateParentFolder(folderId, newParentId)).thenReturn(true);
 
-        var output = useCase.execute(folderId, newParentId);
+        var output = useCase.execute(projectId, folderId, newParentId);
 
         assertEquals(newParentId.id().toString(), output.parentFolderId());
         verify(folderRepository).updateParentFolder(folderId, newParentId);
@@ -63,7 +63,7 @@ class MoveFolderUseCaseTest {
         when(folderRepository.findById(newParentId)).thenReturn(Optional.of(newParent));
 
         assertThrows(FolderProjectMismatchException.class,
-                () -> useCase.execute(folderId, newParentId));
+                () -> useCase.execute(folder.getProjectId(), folderId, newParentId));
     }
 
     @Test
@@ -78,6 +78,6 @@ class MoveFolderUseCaseTest {
         when(folderRepository.findById(childId)).thenReturn(Optional.of(child));
 
         assertThrows(FolderMoveWouldCreateCycleException.class,
-                () -> useCase.execute(folderId, childId));
+                () -> useCase.execute(projectId, folderId, childId));
     }
 }

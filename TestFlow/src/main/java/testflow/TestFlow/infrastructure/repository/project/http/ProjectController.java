@@ -16,35 +16,32 @@ import java.util.UUID;
 @RequestMapping("/projects")
 public class ProjectController {
     private CreateProjectUseCase createProjectUseCase;
-    private GetAllProjectsUserCase getAllProjectsUserCase;
-    private GetProjectByIdUserCase getProjectByIdUserCase;
+    private GetAllProjectsUseCase getAllProjectsUseCase;
+    private GetProjectByIdUseCase getProjectByIdUseCase;
     private UpdateProjectUseCase updateProjectUseCase;
     private DeleteProjectUseCase deleteProjectUseCase;
 
-    public ProjectController(CreateProjectUseCase createProjectUseCase, GetAllProjectsUserCase getAllProjectsUserCase, GetProjectByIdUserCase getProjectByIdUserCase, UpdateProjectUseCase updateProjectUseCase, DeleteProjectUseCase deleteProjectUseCase){
+    public ProjectController(CreateProjectUseCase createProjectUseCase, GetAllProjectsUseCase getAllProjectsUseCase, GetProjectByIdUseCase getProjectByIdUseCase, UpdateProjectUseCase updateProjectUseCase, DeleteProjectUseCase deleteProjectUseCase){
         this.createProjectUseCase = createProjectUseCase;
-        this.getAllProjectsUserCase = getAllProjectsUserCase;
-        this.getProjectByIdUserCase = getProjectByIdUserCase;
+        this.getAllProjectsUseCase = getAllProjectsUseCase;
+        this.getProjectByIdUseCase = getProjectByIdUseCase;
         this.updateProjectUseCase = updateProjectUseCase;
         this.deleteProjectUseCase = deleteProjectUseCase;
     }
 
     @PostMapping
     ProjectResponse createProject(@RequestBody @Valid CreateProjectRequest request){
-        var input = request.toInput();
-        var output = createProjectUseCase.execute(input);
-        return ProjectResponse.toOutput(output);
+        return ProjectResponse.from(createProjectUseCase.execute(request.toInput()));
     }
 
     @GetMapping
     List<ProjectResponse> getAllProjects(){
-        return getAllProjectsUserCase.execute().stream().map(ProjectResponse::toOutput).toList();
+        return getAllProjectsUseCase.execute().stream().map(ProjectResponse::from).toList();
     }
 
     @GetMapping("/{id}")
     ProjectResponse getProjectById(@PathVariable UUID id){
-        var output = getProjectByIdUserCase.execute(new ProjectId(id));
-        return ProjectResponse.toOutput(output);
+        return ProjectResponse.from(getProjectByIdUseCase.execute(new ProjectId(id)));
     }
 
     @DeleteMapping("/{id}")
@@ -55,8 +52,6 @@ public class ProjectController {
 
     @PutMapping("/{id}")
     ProjectResponse update(@PathVariable UUID id, @RequestBody @Valid UpdateProjectRequest request){
-        var input = request.toInput();
-        var output = updateProjectUseCase.execute(new ProjectId(id), input);
-        return ProjectResponse.toOutput(output);
+        return ProjectResponse.from(updateProjectUseCase.execute(new ProjectId(id), request.toInput()));
     }
 }

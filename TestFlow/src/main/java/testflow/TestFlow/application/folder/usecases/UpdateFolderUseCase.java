@@ -10,6 +10,7 @@ import testflow.TestFlow.domain.folder.Folder;
 import testflow.TestFlow.domain.folder.FolderId;
 import testflow.TestFlow.domain.folder.FolderNotFoundException;
 import testflow.TestFlow.domain.folder.FolderRepository;
+import testflow.TestFlow.domain.project.ProjectId;
 import testflow.TestFlow.infrastructure.event.folder.FolderUpdatedEvent;
 
 @Service
@@ -23,12 +24,15 @@ public class UpdateFolderUseCase {
     }
 
     @Transactional
-//    @CacheEvict(value = "folders", key = "#id.id()", beforeInvocation = false)
-    public FolderOutput execute (FolderId id, UpdateFolderInput input){
+    @CacheEvict(value = "folders", allEntries = true)
+    public FolderOutput execute (ProjectId projectId, FolderId id, UpdateFolderInput input){
         long start = System.nanoTime();
 
         Folder folder = folderRepository.findById(id)
                 .orElseThrow(() -> new FolderNotFoundException(id));
+        if (!folder.getProjectId().equals(projectId)) {
+            throw new FolderNotFoundException(id);
+        }
 
         String oldName = folder.getName();
 

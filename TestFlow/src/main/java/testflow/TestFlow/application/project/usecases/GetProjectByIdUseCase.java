@@ -10,11 +10,11 @@ import testflow.TestFlow.domain.project.ProjectRepository;
 import testflow.TestFlow.infrastructure.event.project.ProjectViewedEvent;
 
 @Service
-public class GetProjectByIdUserCase {
+public class GetProjectByIdUseCase {
     private final ProjectRepository projectRepository;
     private final ApplicationEventPublisher eventPublisher;
 
-    public GetProjectByIdUserCase(ProjectRepository projectRepository, ApplicationEventPublisher eventPublisher) {
+    public GetProjectByIdUseCase(ProjectRepository projectRepository, ApplicationEventPublisher eventPublisher) {
         this.projectRepository = projectRepository;
         this.eventPublisher = eventPublisher;
     }

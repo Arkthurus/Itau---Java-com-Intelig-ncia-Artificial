@@ -12,6 +12,7 @@ import testflow.TestFlow.domain.folder.FolderNotFoundException;
 import testflow.TestFlow.domain.folder.FolderProjectMismatchException;
 import testflow.TestFlow.domain.folder.FolderRepository;
 import testflow.TestFlow.domain.folder.ParentFolderNotFoundException;
+import testflow.TestFlow.domain.project.ProjectId;
 import testflow.TestFlow.infrastructure.event.folder.FolderMovedEvent;
 
 import java.util.HashSet;
@@ -28,10 +29,13 @@ public class MoveFolderUseCase {
     }
 
     @Transactional
-    public FolderOutput execute(FolderId folderId, @Nullable FolderId newParentFolderId) {
+    public FolderOutput execute(ProjectId projectId, FolderId folderId, @Nullable FolderId newParentFolderId) {
         long start = System.nanoTime();
         Folder folder = folderRepository.findById(folderId)
                 .orElseThrow(() -> new FolderNotFoundException(folderId));
+        if (!folder.getProjectId().equals(projectId)) {
+            throw new FolderNotFoundException(folderId);
+        }
 
         //Verifica existencia da pasta alvo
         if (newParentFolderId != null) {

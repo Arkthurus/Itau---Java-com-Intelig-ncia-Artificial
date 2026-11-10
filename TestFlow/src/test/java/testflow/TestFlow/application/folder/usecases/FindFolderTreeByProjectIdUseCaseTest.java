@@ -6,9 +6,12 @@ import org.springframework.context.ApplicationEventPublisher;
 import testflow.TestFlow.domain.folder.Folder;
 import testflow.TestFlow.domain.folder.FolderRepository;
 import testflow.TestFlow.domain.project.ProjectId;
+import testflow.TestFlow.domain.project.Project;
+import testflow.TestFlow.domain.project.ProjectRepository;
 import testflow.TestFlow.infrastructure.event.folder.FolderTreeListedEvent;
 
 import java.util.List;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
@@ -21,19 +24,23 @@ import static org.mockito.Mockito.when;
 
 class FindFolderTreeByProjectIdUseCaseTest {
     private FolderRepository folderRepository;
+    private ProjectRepository projectRepository;
     private ApplicationEventPublisher eventPublisher;
     private FindFolderTreeByProjectIdUseCase useCase;
 
     @BeforeEach
     void setUp() {
         folderRepository = mock(FolderRepository.class);
+        projectRepository = mock(ProjectRepository.class);
         eventPublisher = mock(ApplicationEventPublisher.class);
-        useCase = new FindFolderTreeByProjectIdUseCase(folderRepository, eventPublisher);
+        useCase = new FindFolderTreeByProjectIdUseCase(folderRepository, projectRepository, eventPublisher);
     }
 
     @Test
     void returnsCompleteFolderTreeForProject() {
         ProjectId projectId = new ProjectId();
+        when(projectRepository.findById(projectId))
+                .thenReturn(Optional.of(new Project(projectId, "Projeto")));
         Folder root = new Folder("Raiz", projectId, null);
         Folder child = new Folder("Filha", projectId, root.getId());
         Folder grandchild = new Folder("Neta", projectId, child.getId());
@@ -72,6 +79,8 @@ class FindFolderTreeByProjectIdUseCaseTest {
     @Test
     void returnsEmptyListWhenProjectHasNoRootFolders() {
         ProjectId projectId = new ProjectId();
+        when(projectRepository.findById(projectId))
+                .thenReturn(Optional.of(new Project(projectId, "Projeto")));
         when(folderRepository.findRootFoldersByProjectId(projectId)).thenReturn(List.of());
 
         assertEquals(List.of(), useCase.execute(projectId));
@@ -85,6 +94,8 @@ class FindFolderTreeByProjectIdUseCaseTest {
     @Test
     void failsWhenFolderHierarchyContainsCycle() {
         ProjectId projectId = new ProjectId();
+        when(projectRepository.findById(projectId))
+                .thenReturn(Optional.of(new Project(projectId, "Projeto")));
         Folder root = new Folder("Raiz", projectId, null);
         Folder child = new Folder("Filha", projectId, root.getId());
         when(folderRepository.findRootFoldersByProjectId(projectId)).thenReturn(List.of(root));

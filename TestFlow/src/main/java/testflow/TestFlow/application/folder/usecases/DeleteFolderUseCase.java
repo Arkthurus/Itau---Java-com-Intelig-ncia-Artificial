@@ -3,9 +3,11 @@ package testflow.TestFlow.application.folder.usecases;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import testflow.TestFlow.domain.folder.FolderId;
 import testflow.TestFlow.domain.folder.FolderNotFoundException;
 import testflow.TestFlow.domain.folder.FolderRepository;
+import testflow.TestFlow.domain.project.ProjectId;
 import testflow.TestFlow.infrastructure.event.folder.FolderDeletedEvent;
 
 @Service
@@ -18,10 +20,13 @@ public class DeleteFolderUseCase {
         this.eventPublisher = eventPublisher;
     }
 
-    @CacheEvict(value = "folders", key = "#id.id()")
-    public void execute(FolderId id){
+    @CacheEvict(value = "folders", allEntries = true)
+    @Transactional
+    public void execute(ProjectId projectId, FolderId id){
         long start = System.nanoTime();
-        if(folderRepository.findById(id).isEmpty()){
+        var folder = folderRepository.findById(id)
+                .orElseThrow(() -> new FolderNotFoundException(id));
+        if (!folder.getProjectId().equals(projectId)) {
             throw new FolderNotFoundException(id);
         }
 

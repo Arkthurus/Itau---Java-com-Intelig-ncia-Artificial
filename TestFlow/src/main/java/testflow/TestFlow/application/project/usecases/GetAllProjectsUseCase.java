@@ -1,6 +1,5 @@
 package testflow.TestFlow.application.project.usecases;
 
-import org.springframework.boot.ApplicationArguments;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import testflow.TestFlow.application.project.output.ProjectOutput;
@@ -10,11 +9,11 @@ import testflow.TestFlow.infrastructure.event.project.ProjectsListedEvent;
 import java.util.List;
 
 @Service
-public class GetAllProjectsUserCase {
+public class GetAllProjectsUseCase {
     private final ProjectRepository projectRepository;
     private final ApplicationEventPublisher eventPublisher;
 
-    public GetAllProjectsUserCase(ProjectRepository projectRepository, ApplicationEventPublisher eventPublisher) {
+    public GetAllProjectsUseCase(ProjectRepository projectRepository, ApplicationEventPublisher eventPublisher) {
         this.projectRepository = projectRepository;
         this.eventPublisher = eventPublisher;
     }

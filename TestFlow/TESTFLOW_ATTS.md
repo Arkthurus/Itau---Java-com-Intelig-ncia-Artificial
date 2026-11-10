@@ -572,3 +572,103 @@ Este documento serve como contexto e registro das decisões do TestFlow.
 ## 17. Decisão de arquitetura — migrations iniciais (06/11/2026)
 
 A migration inicial do Flyway (`V1`) deve criar somente as tabelas das entidades já configuradas no código e prontas para persistência. No estado atual, isso inclui `Project` e `Folder`. Entidades planejadas, mas ainda não implementadas/configuradas, não devem ganhar tabelas antecipadamente. Quando cada nova entidade for implementada e seu mapeamento estiver definido, o schema correspondente será adicionado em uma migration Flyway posterior.
+## 18. Atualização de implementação (09/11/2026)
+
+Esta seção registra o estado implementado até 09/11/2026. As pendências das seções anteriores refletem o histórico do documento; os itens abaixo foram concluídos ou confirmados nessa data.
+
+### 18.1 Itens anteriormente pendentes concluídos
+
+- `FolderEntity` revisada: `name` permite nomes repetidos; `createdOn` não é anotado como nullable; Lombok usa `@Getter`, `@Setter` e `@NoArgsConstructor`; `projectId` e `parentFolderId` permanecem UUIDs simples.
+- `JpaFolderRepository` converte entre IDs de domínio e UUIDs das entidades JPA.
+- `CreateFolderUseCase` valida a existência do projeto, a existência da pasta pai quando informada e a consistência do projeto entre pai e filha antes de persistir.
+- A migration Flyway V1 cria as tabelas `project` e `folder` e define as FKs. A FK de pai é composta (`project_id`, `parent_folder_id`) para referenciar (`project_id`, `id`), consolidando no banco a regra de que pai e filha pertencem ao mesmo projeto. A constraint `UNIQUE (project_id, id)` dá suporte a essa referência composta. As FKs usam exclusão em cascata.
+- `spring.jpa.hibernate.ddl-auto=validate` está configurado; o Hibernate valida o schema criado pelas migrations.
+- Regras de nome e obrigatoriedade são validadas no domínio e protegidas também por constraints do banco. As anotações Bean Validation presentes nas entidades/requests complementam essas validações quando aplicáveis.
+- Os eventos de ações transacionais usam `@TransactionalEventListener(phase = AFTER_COMMIT)`: os handlers de log recebem os eventos após o commit, para registrar ações confirmadas. Os handlers assíncronos ficam habilitados por configuração dedicada em `AsyncConfig`.
+- Foram adicionados testes dos use cases de pastas descritos abaixo. Os testes atuais cobrem a camada de aplicação; controllers de Folder e respectivos testes HTTP ainda serão implementados quando o controller for criado.
+
+### 18.2 Use cases implementados
+
+**Folder:**
+
+- `CreateFolderUseCase`: cria pasta raiz ou subpasta após validar projeto e pai.
+- `UpdateFolderUseCase`: atualiza o nome da pasta e publica evento.
+- `DeleteFolderUseCase`: verifica existência, remove a pasta e publica evento.
+- `GetFolderByIdUseCase`: consulta pasta por ID, com cache e evento de visualização.
+- `GetAllFoldersUseCase`: lista pastas e publica evento com quantidade e duração.
+- `FindRootFoldersByProjectIdUseCase`: lista pastas raiz de um projeto.
+- `FindSubFoldersUseCase`: lista filhas imediatas de uma pasta.
+- `FindFolderTreeByProjectIdUseCase`: monta a árvore do projeto, detecta ciclos e publica evento com contagem e duração.
+- `MoveFolderUseCase`: move para outra pasta ou para a raiz; valida existência, projeto e ciclos.
+
+O contrato atual de `FolderRepository` também inclui atualização do pai (`updateParentFolder`), busca de raízes por projeto (`findRootFoldersByProjectId`) e busca de filhas por pai (`findByParentFolderId`), além das operações básicas de salvar, consultar, listar, excluir e atualizar nome.
+
+**Project:**
+
+- `CreateProjectUseCase`: cria projeto.
+- `UpdateProjectUseCase`: atualiza nome do projeto e publica evento.
+- `DeleteProjectUseCase`: exclui projeto.
+- `GetProjectByIdUseCase`: consulta projeto por ID.
+- `GetAllProjectsUseCase`: lista projetos.
+
+Os nomes das classes acima refletem os nomes atuais no código, inclusive `UserCase` nas duas classes de consulta de projeto.
+
+### 18.3 Itens que continuam planejados
+
+- Criar `FolderController` e expor os casos de uso de Folder por HTTP; depois, adicionar testes de controller/API.
+- Implementar entidades e casos de uso de `TestCase`, `TestStep`, `TestExecution` e `TestStepExecution`, incluindo resultados reais e evidências por passo executado.
+- Gerar PDFs de execuções.
+- Avaliar otimização da montagem da árvore para buscar pastas em lote em vez de consultar os filhos recursivamente.
+- Criar buscas de caminho ancestral ou reordenação de pastas se houver necessidade.
+
+## 19. Implementação HTTP de Folder (10/11/2026)
+
+Foi criado `FolderController` com as rotas básicas de CRUD:
+
+- `POST /folders`: cria uma pasta; recebe `name`, `projectId` e `parentFolderId` (nulo para pasta raiz), responde `201 Created` com `FolderResponse`.
+- `GET /folders/{id}`: consulta uma pasta por ID.
+- `PUT /folders/{id}`: atualiza o nome da pasta.
+- `DELETE /folders/{id}`: exclui a pasta e responde `204 No Content`.
+
+`CreateFolderRequest` recebe UUIDs simples no JSON e os converte para `ProjectId` e `FolderId` de domínio. Os requests de criação e atualização limitam o nome a 60 caracteres, alinhado à coluna `folder.name`.
+
+A listagem global plana (`GetAllFoldersUseCase`) não foi exposta neste controller; a consulta da árvore por projeto poderá ser adicionada como rota própria. A alteração de cache de leitura/atualização/exclusão foi alinhada para evitar respostas antigas e a exclusão passou a ocorrer em transação, permitindo que seu evento `AFTER_COMMIT` seja processado após a confirmação.
+
+## 20. Rotas de Folder aninhadas por projeto (10/11/2026)
+
+Esta modelagem substitui as rotas iniciais registradas na seção 19 e representa o contrato atual. As rotas HTTP de Folder usam o projeto como recurso pai. O `projectId` vem da URL; a criação não o repete no body. Operações sobre uma pasta verificam que ela pertence ao projeto informado.
+
+- `POST /projects/{projectId}/folders`: cria pasta; `parentFolderId` opcional no body define se é raiz ou subpasta.
+- `GET /projects/{projectId}/folders`: lista pastas raiz.
+- `GET /projects/{projectId}/folders/tree`: retorna a árvore completa.
+- `GET /projects/{projectId}/folders/{parentFolderId}/subfolders`: lista filhas diretas.
+- `GET /projects/{projectId}/folders/{folderId}`: consulta pasta.
+- `PUT /projects/{projectId}/folders/{folderId}`: atualiza nome.
+- `DELETE /projects/{projectId}/folders/{folderId}`: exclui pasta.
+- `PATCH /projects/{projectId}/folders/{folderId}/parent`: move pasta; body com `parentFolderId` UUID ou `null` para mover à raiz.
+
+### 20.1 Validação do projeto nas consultas de pastas (10/11/2026)
+
+As consultas de pastas raiz, subpastas e árvore completa verificam a existência do projeto antes de consultar as pastas. Se o projeto não existir, lançam `ProjectNotFoundException`, convertida pelo `GlobalExceptionHandler` em HTTP 404. A consulta de subpastas também verifica se a pasta pai pertence ao projeto indicado.
+
+## 21. Testes HTTP e documentação da API (10/11/2026)
+
+Foram criados testes MockMvc com Spring REST Docs para os endpoints de Project e Folder, cobrindo sucesso, conversão de requests/responses, códigos HTTP e projeto inexistente. Os use cases de raízes, árvore completa e subpastas validam a existência do projeto e lançam `ProjectNotFoundException` antes das consultas.
+
+Os cenários HTTP cobertos incluem: criar, listar, buscar, atualizar e excluir projetos; erro 404 para projeto inexistente; criar pasta raiz, listar raízes, carregar árvore completa, listar filhas diretas, buscar, atualizar, excluir e mover uma pasta para a raiz; e erro 404 nas consultas de Folder para projeto inexistente. Os testes de use case cobrem árvore com vários níveis, projeto sem raízes, ciclo na árvore, busca de subpastas e movimentação válida, entre projetos diferentes e para dentro de uma descendente.
+
+A documentação v2 consolidada de Project e Folder está em `src/docs/asciidoc/documentacao.adoc`; a versão anterior foi preservada em `src/docs/archive/documentacao-v1.adoc`. O PDF correspondente à versão atual foi gerado como `src/docs/asciidoc/projectsDoc-v2.pdf`.
+
+Verificação: `gradlew test` e `gradlew asciidoctor` concluídos com sucesso.
+
+## 22. Outros ajustes e verificações (10/11/2026)
+
+- Os mapeadores HTTP `ProjectResponse` e `FolderResponse` usam `from(Output)`; as chamadas do `ProjectController` foram atualizadas para esse nome. `FolderTreeResponse` também converte recursivamente com `from(FolderTreeOutput)`.
+- `CreateFolderRequest` agora recebe `parentFolderId` como UUID opcional no body e recebe `projectId` pela rota; converte os valores para IDs de domínio. Os requests de criação e atualização limitam o nome a 60 caracteres, conforme a coluna persistida.
+- As consultas por pasta pai, leitura, atualização, exclusão e movimentação verificam o escopo do `projectId` informado. A listagem de subpastas, raízes e árvore também verifica a existência do projeto e lança `ProjectNotFoundException` quando ausente.
+- `MoveFolderRequest` aceita UUID do novo pai ou `null` para mover à raiz. O use case mantém a validação de ciclos, projeto e existência.
+- Corrigida a expressão da chave de cache em `GetFolderByIdUseCase`; atualização e exclusão invalidam o cache de pastas. `DeleteFolderUseCase` passou a ser transacional para que seu evento `AFTER_COMMIT` ocorra após a confirmação.
+- Os testes de `ProjectController` e `FolderController` usam MockMvc/REST Docs. Os testes de use cases foram atualizados para fornecer `ProjectRepository` e o projeto no escopo, e para usar as novas assinaturas de movimentação e busca de subpastas.
+- O aviso de depreciação Gradle foi rastreado com `--warning-mode all --stacktrace`: `StartParameter.isConfigurationCacheRequested` é acessado pela biblioteca Grolifant usada pelo plugin Asciidoctor Gradle 4.0.5. O código da aplicação não origina esse aviso. A migração para o novo modelo do plugin Asciidoctor 5.x foi avaliada, mas não aplicada.
+
+As classes de consulta de Project atualmente se chamam `GetProjectByIdUseCase` e `GetAllProjectsUseCase`; os nomes antigos com `UserCase` foram renomeados.

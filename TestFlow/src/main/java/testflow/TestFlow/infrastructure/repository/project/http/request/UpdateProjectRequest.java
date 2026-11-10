@@ -10,6 +10,7 @@ public record UpdateProjectRequest(
         String newName
 ){
     public UpdateProjectInput toInput(){
+
         return new UpdateProjectInput(newName);
     }
 }
