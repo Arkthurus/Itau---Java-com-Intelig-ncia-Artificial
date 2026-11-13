@@ -1,0 +1,31 @@
+
+services:
+  testflow-database:
+    image: postgres:17
+    environment:
+      POSTGRES_DB: testflow
+      POSTGRES_USER: testflow
+      POSTGRES_PASSWORD: testflow
+    ports:
+      - "5432:5432"
+    volumes:
+      - testflow_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U testflow -d testflow"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+  project-cache:
+    image: redis:8.6
+    ports:
+      - "6380:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 3
+    restart: unless-stopped
+volumes:
+  testflow_data:

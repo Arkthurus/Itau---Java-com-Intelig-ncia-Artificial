@@ -1,0 +1,11 @@
+package testflow.TestFlow.infrastructure.repository.project.http.response;
+
+import com.fasterxml.jackson.annotation.JsonInclude;
+import testflow.TestFlow.application.project.output.ProjectOutput;
+
+@JsonInclude(JsonInclude.Include.NON_ABSENT)
+public record ProjectResponse(String id, String projectName) {
+    public static ProjectResponse from(ProjectOutput projectOutput){
+        return new ProjectResponse(projectOutput.id(), projectOutput.name());
+    }
+}

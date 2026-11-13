@@ -1,0 +1,172 @@
+= TestFlow API — documentação HTTP v2
+:toc:
+:toc-title: Índice
+:sectnums:
+
+Esta versão documenta as rotas atuais de Project e Folder. Os exemplos HTTP são gerados pelos testes de controller com Spring REST Docs.
+
+== Projetos
+
+=== Criar projeto
+
+include::{snippets}/projects-v2/create/http-request.adoc[]
+
+Campos da requisição:
+
+include::{snippets}/projects-v2/create/request-fields.adoc[]
+
+Resposta:
+
+include::{snippets}/projects-v2/create/http-response.adoc[]
+
+include::{snippets}/projects-v2/create/response-fields.adoc[]
+
+=== Listar projetos
+
+include::{snippets}/projects-v2/list/http-request.adoc[]
+
+include::{snippets}/projects-v2/list/http-response.adoc[]
+
+include::{snippets}/projects-v2/list/response-fields.adoc[]
+
+=== Buscar projeto
+
+include::{snippets}/projects-v2/get-by-id/http-request.adoc[]
+
+include::{snippets}/projects-v2/get-by-id/path-parameters.adoc[]
+
+include::{snippets}/projects-v2/get-by-id/http-response.adoc[]
+
+include::{snippets}/projects-v2/get-by-id/response-fields.adoc[]
+
+=== Atualizar projeto
+
+include::{snippets}/projects-v2/update/http-request.adoc[]
+
+include::{snippets}/projects-v2/update/path-parameters.adoc[]
+
+include::{snippets}/projects-v2/update/request-fields.adoc[]
+
+include::{snippets}/projects-v2/update/http-response.adoc[]
+
+include::{snippets}/projects-v2/update/response-fields.adoc[]
+
+=== Excluir projeto
+
+include::{snippets}/projects-v2/delete/http-request.adoc[]
+
+include::{snippets}/projects-v2/delete/path-parameters.adoc[]
+
+include::{snippets}/projects-v2/delete/http-response.adoc[]
+
+=== Projeto inexistente
+
+include::{snippets}/projects-v2/not-found/http-request.adoc[]
+
+include::{snippets}/projects-v2/not-found/http-response.adoc[]
+
+== Pastas
+
+Todas as rotas de pasta estão no escopo de um projeto. Uma pasta cujo ID não pertença ao projeto indicado é tratada como não encontrada.
+
+=== Criar pasta raiz ou subpasta
+
+`parentFolderId` igual a `null` cria uma pasta raiz. Para criar uma subpasta, envie o ID da pasta pai.
+
+include::{snippets}/folders/create/http-request.adoc[]
+
+Parâmetros do caminho:
+
+include::{snippets}/folders/create/path-parameters.adoc[]
+
+Campos da requisição:
+
+include::{snippets}/folders/create/request-fields.adoc[]
+
+Resposta:
+
+include::{snippets}/folders/create/http-response.adoc[]
+
+include::{snippets}/folders/create/response-fields.adoc[]
+
+=== Listar pastas raiz do projeto
+
+include::{snippets}/folders/list-roots/http-request.adoc[]
+
+include::{snippets}/folders/list-roots/path-parameters.adoc[]
+
+include::{snippets}/folders/list-roots/http-response.adoc[]
+
+include::{snippets}/folders/list-roots/response-fields.adoc[]
+
+=== Listar subpastas diretas
+
+include::{snippets}/folders/list-subfolders/http-request.adoc[]
+
+include::{snippets}/folders/list-subfolders/path-parameters.adoc[]
+
+include::{snippets}/folders/list-subfolders/http-response.adoc[]
+
+include::{snippets}/folders/list-subfolders/response-fields.adoc[]
+
+=== Consultar árvore completa
+
+Retorna todas as pastas do projeto em forma hierárquica. Cada item contém uma lista recursiva `children`.
+
+include::{snippets}/folders/tree/http-request.adoc[]
+
+include::{snippets}/folders/tree/path-parameters.adoc[]
+
+include::{snippets}/folders/tree/http-response.adoc[]
+
+include::{snippets}/folders/tree/response-fields.adoc[]
+
+=== Buscar pasta por ID
+
+include::{snippets}/folders/get-by-id/http-request.adoc[]
+
+include::{snippets}/folders/get-by-id/path-parameters.adoc[]
+
+include::{snippets}/folders/get-by-id/http-response.adoc[]
+
+include::{snippets}/folders/get-by-id/response-fields.adoc[]
+
+=== Atualizar pasta
+
+include::{snippets}/folders/update/http-request.adoc[]
+
+include::{snippets}/folders/update/path-parameters.adoc[]
+
+include::{snippets}/folders/update/request-fields.adoc[]
+
+include::{snippets}/folders/update/http-response.adoc[]
+
+include::{snippets}/folders/update/response-fields.adoc[]
+
+=== Excluir pasta
+
+include::{snippets}/folders/delete/http-request.adoc[]
+
+include::{snippets}/folders/delete/path-parameters.adoc[]
+
+include::{snippets}/folders/delete/http-response.adoc[]
+
+=== Mover pasta
+
+Envie o UUID do novo pai em `parentFolderId`; envie `null` para mover a pasta para a raiz do projeto.
+
+include::{snippets}/folders/move/http-request.adoc[]
+
+include::{snippets}/folders/move/path-parameters.adoc[]
+
+include::{snippets}/folders/move/request-fields.adoc[]
+
+include::{snippets}/folders/move/http-response.adoc[]
+
+=== Projeto inexistente
+
+As consultas de raízes, árvore e subpastas respondem `404 Not Found` quando o projeto informado não existe.
+
+include::{snippets}/folders/project-not-found/http-request.adoc[]
+
+include::{snippets}/folders/project-not-found/http-response.adoc[]
