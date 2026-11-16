@@ -1,122 +1,88 @@
-package testflow.TestFlow.domain.testcase;
+package testflow.TestFlow.domain.testCase;
 
+import jakarta.annotation.Nullable;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
+import lombok.Getter;
+import lombok.Setter;
+import org.springframework.util.Assert;
 import testflow.TestFlow.domain.folder.FolderId;
 import testflow.TestFlow.domain.project.ProjectId;
-import testflow.TestFlow.domain.testcase.teststep.TestStep;
+import testflow.TestFlow.domain.testCase.testStep.TestStep;
 
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 
-public final class TestCase {
-    private static final int NAME_MAX_LENGTH = 150;
 
-    private final TestCaseId id;
-    private final ProjectId projectId;
-    private final FolderId folderId;
+@Getter
+@Setter
+public class TestCase {
+    private TestCaseId id;
+    @NotNull
+    private ProjectId projectId;
+    @NotNull
+    private FolderId folderId;
+    @NotBlank
+    @Size(min = 3, max = 100)
     private String name;
+    @Nullable
+    @Size(min = 3, max = 100)
     private String objective;
+    @Nullable
+    @Size(min = 3, max = 100)
     private String preconditions;
     private List<TestStep> steps;
 
+
+    //Construtor de criação
     public TestCase(
             String name,
-            String objective,
-            String preconditions,
             ProjectId projectId,
             FolderId folderId,
-            List<TestStep> steps
+            @Nullable String objective,
+            @Nullable String preconditions
     ) {
-        this(new TestCaseId(), name, objective, preconditions, projectId, folderId, steps);
+        this.id = new TestCaseId();
+        this.projectId = projectId;
+        this.folderId = folderId;
+        this.name = name;
+        this.objective = objective;
+        this.preconditions = preconditions;
+        this.steps = new ArrayList<>();
     }
 
+    //Construtor De consulta ao banco
     public TestCase(
             TestCaseId id,
             String name,
-            String objective,
-            String preconditions,
             ProjectId projectId,
             FolderId folderId,
+            @Nullable String objective,
+            @Nullable String preconditions,
             List<TestStep> steps
     ) {
-        this.id = Objects.requireNonNull(id, "TestCase id não pode ser nulo");
-        this.projectId = Objects.requireNonNull(projectId, "ProjectId não pode ser nulo");
-        this.folderId = Objects.requireNonNull(folderId, "FolderId não pode ser nulo");
-        updateDefinition(name, objective, preconditions, steps);
-    }
-
-    public TestCaseId getId() {
-        return id;
-    }
-
-    public ProjectId getProjectId() {
-        return projectId;
-    }
-
-    public FolderId getFolderId() {
-        return folderId;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public String getObjective() {
-        return objective;
-    }
-
-    public String getPreconditions() {
-        return preconditions;
-    }
-
-    public List<TestStep> getSteps() {
-        return steps;
-    }
-
-    public void updateDefinition(
-            String name,
-            String objective,
-            String preconditions,
-            List<TestStep> steps
-    ) {
-        String normalizedName = normalizeName(name);
-        String normalizedObjective = normalizeOptionalText(objective);
-        String normalizedPreconditions = normalizeOptionalText(preconditions);
-        List<TestStep> normalizedSteps = normalizeSteps(steps);
-
-        this.name = normalizedName;
-        this.objective = normalizedObjective;
-        this.preconditions = normalizedPreconditions;
-        this.steps = normalizedSteps;
-    }
-
-    private static String normalizeName(String name) {
-        if (name == null || name.isBlank()) {
-            throw new IllegalArgumentException("Nome do TestCase não pode ser vazio");
+        Assert.notNull(id, "TestCaseId não pode ser nulo.");
+        Assert.notNull(projectId, "ProjectId não pode ser nulo.");
+        Assert.notNull(folderId, "FolderId não pode ser nulo.");
+        Assert.hasText(name, "Name do TestCase não pode ser vazio");
+        if (objective != null && objective.isBlank()) {
+            throw new IllegalArgumentException(
+                    "Objetivo não pode conter apenas espaços em branco"
+            );
+        }
+        if (preconditions != null && preconditions.isBlank()) {
+            throw new IllegalArgumentException(
+                    "Pre-condições não pode conter apenas espaços em branco"
+            );
         }
 
-        String normalizedName = name.trim();
-        if (normalizedName.length() > NAME_MAX_LENGTH) {
-            throw new IllegalArgumentException("Nome do TestCase não pode exceder 150 caracteres");
-        }
-        return normalizedName;
-    }
-
-    private static String normalizeOptionalText(String value) {
-        if (value == null || value.isBlank()) {
-            return null;
-        }
-        return value.trim();
-    }
-
-    private static List<TestStep> normalizeSteps(List<TestStep> steps) {
-        if (steps == null || steps.isEmpty()) {
-            throw new IllegalArgumentException("TestCase deve possuir pelo menos um TestStep");
-        }
-
-        // A posição de cada item na lista do agregado define sua ordem persistida, sempre iniciando em 1.
-        return java.util.stream.IntStream.range(0, steps.size())
-                .mapToObj(index -> Objects.requireNonNull(steps.get(index), "TestStep não pode ser nulo")
-                        .withOrder(index + 1))
-                .toList();
+        this.id = id;
+        this.projectId = projectId;
+        this.folderId = folderId;
+        this.preconditions = preconditions;
+        this.objective = objective;
+        this.steps = steps;
     }
 }
+

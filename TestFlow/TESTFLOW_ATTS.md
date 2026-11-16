@@ -68,9 +68,28 @@ src/main/java/
 │       ├── project/
 │       └── folder/
 └── http/
-    ├── controller/
-    ├── request/
-    └── response/
+    ├── project/
+    │   ├── controller/
+    │   ├── request/
+    │   └── response/
+    ├── folder/
+    │   ├── controller/
+    │   ├── request/
+    │   └── response/
+    └── testcase/
+        ├── controller/
+        ├── request/
+        ├── response/
+        ├── teststep/
+        │   ├── request/
+        │   └── response/
+        └── testexecution/
+            ├── controller/
+            ├── request/
+            ├── response/
+            └── teststepexecution/
+                ├── request/
+                └── response/
 ```
 
 A estrutura é uma referência conceitual e pode evoluir conforme a
@@ -756,28 +775,35 @@ que ainda tratem snapshots ou status de execução como decisões pendentes.
 
 ### 23.3 Domínio iniciado e próximos passos
 
-- O domínio inicial já contém `TestCase`, `TestCaseId`, `TestStep` e
-  `TestStepId`. A criação gera IDs UUID; a reconstituição aceita IDs
-  existentes.
-- `TestCase` exige nome não vazio com até 150 caracteres, `ProjectId`,
-  `FolderId` e ao menos um passo. Objetivo e pré-condições são opcionais;
-  valores nulos ou em branco são normalizados para nulo.
-- `TestStep` exige ação e resultado esperado não vazios. A ordem começa em
-  1 e é atribuída pelo `TestCase` conforme a posição na lista, inclusive
-  quando a definição é atualizada; a identidade do passo é preservada ao
-  recalcular a ordem.
-- O construtor de criação de `TestCase` gera um ID; o construtor de
-  reconstituição recebe o ID persistido. `TestStep` segue o mesmo princípio,
-  recebendo ID e ordem existentes quando reconstituído.
-- A migration V2 foi iniciada para criar `test_case` e `test_step`, com FK
-  composta que valida o projeto da pasta, exclusão em cascata e unicidade
-  adiada da ordem dos passos. A migration ainda deve ser revisada e validada
-  com Flyway antes de ser considerada concluída.
-- Antes de avançar, consolidar os arquivos de domínio em um único package:
-  há código iniciado tanto em `testcase` quanto em `testCase`. Depois,
-  completar testes do agregado e avançar para persistência, casos de uso,
-  controllers e testes HTTP. As tabelas de execução ficam para uma migration
-  posterior, depois de TestCase estar pronto.
+- O domínio contém arquivos para `TestCase`, `TestCaseId`, `TestStep` e
+  `TestStepId`. Os construtores de criação geram IDs UUID e os construtores
+  de reconstituição recebem os IDs existentes.
+- O modelo atual de `TestStep` contém `testCaseId`, `stepOrder`, `action` e
+  `expectedResult`. O construtor recebe `testCaseId` e `stepOrder`; o backend,
+  dentro das regras do agregado `TestCase`, deve determinar a ordem, nunca o
+  cliente HTTP. O repositório deve persistir esses campos e ler os passos
+  ordenados por `stepOrder`.
+- A implementação ainda precisa consolidar a propriedade da coleção e da
+  atribuição/reordenação dos passos no agregado `TestCase`. O use case não deve
+  calcular a ordem nem manipular `TestStep` fora do agregado.
+- `TestStep` recebe `stepOrder` como `Integer` nos construtores para validar
+  explicitamente `null` e valores menores que 1; após a validação, armazena o
+  valor no campo primitivo `int`.
+- As validações atuais ainda estão incompletas: confirmar que os campos
+  obrigatórios de `TestCase` são validados também nos construtores; e
+  decidir como a regra de ao menos um passo se aplica à criação inicial e às
+  atualizações. Objetivo e pré-condições são opcionais, mas valores informados
+  compostos somente por espaços devem ser rejeitados.
+- A migration V2 cria `testCase` e `testStep`, com colunas de negócio em
+  camelCase e nomes de constraints/índice em snake_case. Ela contém FK para
+  pasta, exclusão em cascata, validação de ordem positiva e unicidade adiada
+  de `(testCaseId, stepOrder)`. Ainda precisa ser validada com Flyway e
+  alinhada ao futuro mapeamento JPA, inclusive à estratégia de nomes físicos
+  do Hibernate.
+- Não há testes de domínio, repositórios, use cases, controllers nem tabelas
+  de execução implementados para esse bloco. As tabelas de execução ficam
+  para uma migration posterior, quando o modelo correspondente estiver
+  definido.
 
 ## 24. Cache das consultas de Folder (16/11/2026)
 
@@ -792,3 +818,42 @@ As alterações de cache são processadas por listeners síncronos `AFTER_COMMIT
 - Após excluir um projeto, todas as entradas de `folders` também são removidas depois do commit, pois a exclusão do projeto remove suas pastas em cascata. A exclusão do projeto é transacional.
 
 Foram adicionados testes para a atualização seletiva das entradas de detalhe e listas, movimentação entre listas e processamento dos listeners de eventos após o commit. A configuração da tarefa `test` também exibe eventos de testes e saídas padrão.
+
+## 25. Reorganização HTTP e estado atual de TestCase (16/11/2026)
+
+### 25.1 Pacotes HTTP
+
+- Os controllers, requests e responses existentes de Project e Folder foram
+  movidos para `http/project/` e `http/folder/`, cada um com os subpacotes
+  `controller/`, `request/` e `response/`.
+- `GlobalExceptionHandler` agora fica diretamente em `http/` por ser
+  compartilhado pelos recursos.
+- Os testes HTTP de Project e Folder acompanham seus controllers em
+  `src/test/java/testflow/TestFlow/http/{project,folder}/controller/`.
+- Foram criados `package-info.java` para manter registrados no Git os
+  pacotes planejados de `http/testcase/`, `teststep/`, `testexecution/` e
+  `teststepexecution/`. Esses pacotes ainda não contêm controllers ou DTOs.
+- Não foram encontradas referências Java aos pacotes HTTP antigos sob
+  `infrastructure.repository.*.http` ou `infrastructure.http`.
+
+### 25.2 Revisão pendente de TestCase/TestStep
+
+- O working tree contém entradas de Git para caminhos de domínio que diferem
+  apenas pela capitalização (`testCase` e `testcase`). O projeto está em
+  Windows com `core.ignorecase=true`; consolidar esses caminhos em um único
+  diretório minúsculo (`testcase/teststep`) antes de continuar para evitar
+  colisões entre nomes de arquivo no checkout.
+- A implementação atual de `TestStep` guarda `testCaseId` e `stepOrder` e
+  valida nos construtores que a ordem não seja nula nem menor que 1.
+- Ainda é necessário garantir as invariantes de `TestCase` nos construtores e
+  concentrar nele a criação e reordenação dos passos. A regra de quantidade
+  mínima de passos deve ser aplicada de forma compatível com o fluxo de
+  criação e edição.
+- `compileJava` e `compileTestJava` concluíram com sucesso usando o JBR
+  incluído no IntelliJ IDEA.
+- A suíte executou 29 testes: 28 passaram e `should_create_project_successfully`
+  falhou ao iniciar o contexto Spring porque PostgreSQL não estava disponível
+  em `localhost:5432`. Os testes HTTP de Project e Folder passaram.
+- `asciidoctor -x test` concluiu com sucesso. A tarefa foi executada sem
+  repetir a suíte, que já havia sido executada e teve a falha de ambiente
+  descrita acima.

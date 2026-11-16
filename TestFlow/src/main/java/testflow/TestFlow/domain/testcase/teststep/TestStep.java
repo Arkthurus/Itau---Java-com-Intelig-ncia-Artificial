@@ -1,56 +1,63 @@
-package testflow.TestFlow.domain.testcase.teststep;
+package testflow.TestFlow.domain.testCase.testStep;
 
-public final class TestStep {
-    private final TestStepId id;
-    private final int stepOrder;
-    private final String action;
-    private final String expectedResult;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import lombok.Getter;
+import lombok.Setter;
+import org.springframework.util.Assert;
+import testflow.TestFlow.domain.testCase.TestCase;
+import testflow.TestFlow.domain.testCase.TestCaseId;
 
-    public TestStep(String action, String expectedResult) {
-        this(new TestStepId(), 1, action, expectedResult);
+@Getter
+@Setter
+public  class TestStep {
+    private TestStepId id;
+    @NotNull
+    private TestCaseId testCaseId;
+    private int stepOrder;
+    @NotBlank
+    private String action;
+    @NotBlank
+    private String expectedResult;
+
+    //Construtor de criação
+    public TestStep(@NotNull TestCaseId testCaseId,
+                    @NotNull Integer stepOrder,
+                    @NotBlank String action,
+                    @NotBlank String expectedResult
+    ) {
+        Assert.notNull(testCaseId, "TestCaseId não pode ser nulo.");
+        Assert.notNull(stepOrder, "StepOrder não pode ser nulo.");
+        Assert.isTrue(stepOrder >= 1, "StepOrder deve ser maior ou igual a 1.");
+
+        Assert.hasText(action, "Action não pode estar vazio.");
+        Assert.hasText(expectedResult, "ExpectedResult não pode estar vazio.");
+
+        this.id = new  TestStepId();
+        this.testCaseId = testCaseId;
+        this.stepOrder = stepOrder;
+        this.action = action;
+        this.expectedResult = expectedResult;
     }
 
-    public TestStep(TestStepId id, int stepOrder, String action, String expectedResult) {
-        if (id == null) {
-            throw new IllegalArgumentException("TestStep id não pode ser nulo");
-        }
-        if (stepOrder < 1) {
-            throw new IllegalArgumentException("A ordem do TestStep deve começar em 1");
-        }
+    //Construtor de consulta ao banco
+    public TestStep(@NotNull TestStepId id,
+                    @NotNull TestCaseId testCaseId,
+                    @NotNull Integer stepOrder,
+                    @NotBlank String action,
+                    @NotBlank String expectedResult
+    ) {
+        Assert.notNull(id, "TestStepId não pode ser nulo.");
+        Assert.notNull(testCaseId, "TestCaseId não pode ser nulo.");
+        Assert.notNull(stepOrder, "StepOrder não pode ser nulo.");
+        Assert.isTrue(stepOrder >= 1, "StepOrder deve ser maior ou igual a 1.");
+        Assert.hasText(action, "Action não pode estar vazio.");
+        Assert.hasText(expectedResult, "ExpectedResult não pode estar vazio.");
 
         this.id = id;
+        this.testCaseId = testCaseId;
         this.stepOrder = stepOrder;
-        this.action = requireText(action, "A ação do TestStep não pode ser vazia");
-        this.expectedResult = requireText(
-                expectedResult,
-                "O resultado esperado do TestStep não pode ser vazio"
-        );
-    }
-
-    public TestStepId getId() {
-        return id;
-    }
-
-    public int getStepOrder() {
-        return stepOrder;
-    }
-
-    public String getAction() {
-        return action;
-    }
-
-    public String getExpectedResult() {
-        return expectedResult;
-    }
-
-    public TestStep withOrder(int newOrder) {
-        return new TestStep(id, newOrder, action, expectedResult);
-    }
-
-    private static String requireText(String value, String message) {
-        if (value == null || value.isBlank()) {
-            throw new IllegalArgumentException(message);
-        }
-        return value.trim();
+        this.action = action;
+        this.expectedResult = expectedResult;
     }
 }

@@ -1,12 +1,12 @@
-package testflow.TestFlow.domain.testcase.teststep;
+package testflow.TestFlow.domain.testCase.testStep;
+
+import org.springframework.util.Assert;
 
 import java.util.UUID;
 
 public record TestStepId(UUID id) {
     public TestStepId {
-        if (id == null) {
-            throw new IllegalArgumentException("TestStep id não pode ser nulo");
-        }
+        Assert.notNull(id, "O TestStepId não pode ser nulo.");
     }
 
     public TestStepId() {
