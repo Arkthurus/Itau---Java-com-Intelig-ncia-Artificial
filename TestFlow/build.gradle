@@ -64,6 +64,10 @@ dependencies {
 tasks.named('test') {
     useJUnitPlatform()
     outputs.dir snippetsDir
+    testLogging {
+        events 'passed', 'skipped', 'failed'
+        showStandardStreams = true
+    }
 }
 
 tasks.named('asciidoctor') {

@@ -21,7 +21,7 @@ histórico de execuções. - Gerar relatórios/PDFs das execuções
 futuramente.
 
 Uma execução não substitui a anterior: um mesmo `TestCase` poderá
-possuir várias `TestExecution`.
+possuir várias `TestCaseExecution`.
 
 ## 2. Tecnologias
 
@@ -128,24 +128,50 @@ Essas regras serão implementadas principalmente em um futuro
 
 ## 5. Modelo de casos de teste e execuções
 
--   `TestCase` representa a definição de um cenário de teste.
--   Um `TestCase` possui nome, descrição/objetivo, pré-condições, uma
-    `Folder` e uma lista de `TestStep`.
--   Cada `TestStep` descreve uma ação e o resultado esperado.
--   `TestExecution` representa uma execução específica de um `TestCase`.
--   Um mesmo `TestCase` pode ter várias execuções, preservando
+-   `TestCase` representa a definição de um cenário de teste e pertence
+    a exatamente uma `Folder`. Seu escopo de projeto é armazenado nele;
+    entidades abaixo dele não duplicam `projectId` ou `folderId`.
+-   `TestCase`, `TestStep`, `TestCaseExecution` e `TestStepExecution`
+    possuem identificadores próprios e únicos. A identidade própria de
+    `TestStep` não o torna independente do agregado `TestCase`.
+-   Um `TestCase` possui título, objetivo e pré-condições, além de uma
+    lista ordenada de `TestStep`. O objetivo e as pré-condições são
+    opcionais; cada passo exige ação e resultado esperado.
+-   Depois de finalizar a criação de um `TestCase`, o usuário pode
+    escolher entre gerar uma execução ou editar o caso. A opção de editar
+    libera a alteração do título, objetivo, pré-condições e `TestStep`s;
+    essas alterações modificam a definição do caso, não execuções já
+    iniciadas.
+-   `TestStep` pertence ao agregado `TestCase`: tem identidade própria,
+    mas é criado, alterado, reordenado e excluído por operações do
+    `TestCase`, nunca isoladamente.
+-   `TestCaseExecution` representa uma execução específica de um
+    `TestCase`. Um caso pode ter várias execuções, preservando o
     histórico.
--   `TestStepExecution` representa o resultado de um passo em uma
-    execução.
--   A execução do passo armazena resultado real, status e evidências.
--   Evidências/imagens pertencem à execução do passo
-    (`TestStepExecution`), não à definição original (`TestStep`).
--   Status iniciais previstos: `PASSED` e `FAILED`.
+-   Ao iniciar uma execução, o sistema cria e persiste
+    `TestCaseExecution` com `executionStatus = IN_PROGRESS` e um
+    snapshot dos dados do caso de teste, incluindo título, textos e
+    passos. Na tela de execução, os dados copiados do `TestCase` e dos
+    `TestStep`s são somente para leitura; não podem ser editados nessa
+    tela. Eles não mudam quando a definição original é editada.
+-   Cada passo copiado é um `TestStepExecution` com identidade própria
+    e cópia da ordem, ação e resultado esperado do `TestStep` original.
+    Ele também armazena o resultado observado, o status do passo e
+    anexos opcionais. O vínculo com o passo original é opcional; a cópia
+    não depende da existência posterior desse passo.
+-   Anexos/imagens pertencem ao `TestStepExecution`, nunca ao
+    `TestStep` da definição. Não é obrigatório anexar imagens.
+-   Ao finalizar, todos os passos da execução devem estar preenchidos.
+    O `executionStatus` passa a `FINALIZED`, e o `testStatus` geral é
+    calculado a partir dos status dos passos: `FAILED` se algum passo
+    falhar; caso contrário, `PASSED`. Nenhum dos status gerais é
+    informado diretamente pelo cliente.
+-   Uma execução finalizada é imutável. Alterações posteriores no
+    `TestCase` ou nos seus passos não alteram seu snapshot.
+-   A exclusão de um `TestCase` é permitida e remove suas execuções e
+    respectivos resultados em cascata. A exclusão de uma `Folder`
+    também remove os casos de teste e todo o conteúdo subordinado.
 -   A geração de PDF das execuções é uma funcionalidade planejada.
-
-Pode ser útil armazenar em `TestStepExecution` um snapshot da ação e do
-resultado esperado originais, para preservar o contexto histórico mesmo
-se o `TestStep` for alterado depois.
 
 ## 6. IDs e persistência
 
@@ -572,6 +598,17 @@ Este documento serve como contexto e registro das decisões do TestFlow.
 ## 17. Decisão de arquitetura — migrations iniciais (06/11/2026)
 
 A migration inicial do Flyway (`V1`) deve criar somente as tabelas das entidades já configuradas no código e prontas para persistência. No estado atual, isso inclui `Project` e `Folder`. Entidades planejadas, mas ainda não implementadas/configuradas, não devem ganhar tabelas antecipadamente. Quando cada nova entidade for implementada e seu mapeamento estiver definido, o schema correspondente será adicionado em uma migration Flyway posterior.
+
+### Padrão de comentários no código
+
+Comentários adicionados ou alterados devem ser didáticos e próximos do trecho
+explicado, descrevendo regras de negócio, decisões ou efeitos não óbvios.
+Em migrations, seguir o padrão da V1, inclusive comentários junto às linhas
+de `CONSTRAINT`, `FOREIGN KEY`, `REFERENCES` e `ON DELETE`, quando aplicável.
+Ao adicionar ou alterar operações `.stream()` e `.map()`, explicar a
+transformação realizada quando isso ajudar a entender a lógica. Evitar
+comentários que apenas repetem o que o código já deixa claro, como explicar
+um `return`, `toList()` ou uma operação cujo nome já descreve seu efeito.
 ## 18. Atualização de implementação (09/11/2026)
 
 Esta seção registra o estado implementado até 09/11/2026. As pendências das seções anteriores refletem o histórico do documento; os itens abaixo foram concluídos ou confirmados nessa data.
@@ -672,3 +709,72 @@ Verificação: `gradlew test` e `gradlew asciidoctor` concluídos com sucesso.
 - O aviso de depreciação Gradle foi rastreado com `--warning-mode all --stacktrace`: `StartParameter.isConfigurationCacheRequested` é acessado pela biblioteca Grolifant usada pelo plugin Asciidoctor Gradle 4.0.5. O código da aplicação não origina esse aviso. A migração para o novo modelo do plugin Asciidoctor 5.x foi avaliada, mas não aplicada.
 
 As classes de consulta de Project atualmente se chamam `GetProjectByIdUseCase` e `GetAllProjectsUseCase`; os nomes antigos com `UserCase` foram renomeados.
+
+## 23. Modelo e início da implementação de TestCase (13/11/2026)
+
+Esta seção registra as decisões alinhadas para o bloco de casos de teste e
+execuções. Ela complementa a seção 5 e prevalece sobre descrições anteriores
+que ainda tratem snapshots ou status de execução como decisões pendentes.
+
+### 23.1 Agregados e organização
+
+- `TestCase` é o agregado que contém a definição do cenário; `TestStep` é
+  interno a esse agregado. Ambos possuem UUID próprio, mas não haverá
+  repositório, controller ou operações independentes para `TestStep`.
+- `TestCaseExecution` é um agregado separado, referencia o caso por ID e
+  mantém seu próprio snapshot. `TestStepExecution` pertence à execução e
+  também possui UUID próprio.
+- A organização de pacotes acordada é `domain/testcase/` para `TestCase`,
+  com subpacotes `teststep/` e `testexecution/`; dentro de `testexecution/`,
+  `teststepexecution/` contém `TestStepExecution` e seu ID. Nomes de pacotes
+  devem ser minúsculos.
+- O bloco terá dois controllers: um para `TestCase` e outro para
+  `TestCaseExecution`. Os passos são manipulados no contexto do respectivo
+  recurso pai, sem controllers próprios.
+
+### 23.2 Comportamento acordado
+
+- Na manutenção de `TestCase`, o usuário pode editar nome, objetivo,
+  pré-condições e a coleção de passos. Depois de criar o caso, a interface
+  oferece as opções de iniciar uma execução ou editar o caso.
+- Ao iniciar uma execução, cria-se e persiste-se `TestCaseExecution` com
+  status de execução `IN_PROGRESS`, copiando o título e os textos do caso,
+  além dos passos e sua ordem. Esses dados copiados são somente para leitura
+  na execução e permanecem iguais mesmo se a definição original for editada.
+- Cada passo copiado é um `TestStepExecution` com novo ID, cópia da ordem,
+  ação e resultado esperado, e campos próprios para resultado observado,
+  status do passo e anexos. O vínculo ao `TestStep` original pode ser
+  opcional; a cópia não depende da existência posterior do passo original.
+- Anexos são opcionais. Para finalizar, todos os passos precisam estar
+  preenchidos. A finalização altera `executionStatus` de `IN_PROGRESS` para
+  `FINALIZED`, calcula `testStatus` como falha se algum passo falhou ou
+  sucesso caso contrário, e torna a execução imutável.
+- A exclusão direta de `TestCase` é permitida e remove suas execuções e
+  snapshots. A exclusão de uma pasta também remove os casos e todo o
+  conteúdo subordinado. A futura interface deve avisar que o conteúdo será
+  excluído junto com a pasta.
+
+### 23.3 Domínio iniciado e próximos passos
+
+- O domínio inicial já contém `TestCase`, `TestCaseId`, `TestStep` e
+  `TestStepId`. A criação gera IDs UUID; a reconstituição aceita IDs
+  existentes.
+- `TestCase` exige nome não vazio com até 150 caracteres, `ProjectId`,
+  `FolderId` e ao menos um passo. Objetivo e pré-condições são opcionais;
+  valores nulos ou em branco são normalizados para nulo.
+- `TestStep` exige ação e resultado esperado não vazios. A ordem começa em
+  1 e é atribuída pelo `TestCase` conforme a posição na lista, inclusive
+  quando a definição é atualizada; a identidade do passo é preservada ao
+  recalcular a ordem.
+- O construtor de criação de `TestCase` gera um ID; o construtor de
+  reconstituição recebe o ID persistido. `TestStep` segue o mesmo princípio,
+  recebendo ID e ordem existentes quando reconstituído.
+- A migration V2 foi iniciada para criar `test_case` e `test_step`, com FK
+  composta que valida o projeto da pasta, exclusão em cascata e unicidade
+  adiada da ordem dos passos. A migration ainda deve ser revisada e validada
+  com Flyway antes de ser considerada concluída.
+- Antes de avançar, consolidar os arquivos de domínio em um único package:
+  há código iniciado tanto em `testcase` quanto em `testCase`. Depois,
+  completar testes do agregado e avançar para persistência, casos de uso,
+  controllers e testes HTTP. As tabelas de execução ficam para uma migration
+  posterior, depois de TestCase estar pronto.
