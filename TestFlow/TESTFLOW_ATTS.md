@@ -704,7 +704,7 @@ Verificação: `gradlew test` e `gradlew asciidoctor` concluídos com sucesso.
 - `CreateFolderRequest` agora recebe `parentFolderId` como UUID opcional no body e recebe `projectId` pela rota; converte os valores para IDs de domínio. Os requests de criação e atualização limitam o nome a 60 caracteres, conforme a coluna persistida.
 - As consultas por pasta pai, leitura, atualização, exclusão e movimentação verificam o escopo do `projectId` informado. A listagem de subpastas, raízes e árvore também verifica a existência do projeto e lança `ProjectNotFoundException` quando ausente.
 - `MoveFolderRequest` aceita UUID do novo pai ou `null` para mover à raiz. O use case mantém a validação de ciclos, projeto e existência.
-- Corrigida a expressão da chave de cache em `GetFolderByIdUseCase`; atualização e exclusão invalidam o cache de pastas. `DeleteFolderUseCase` passou a ser transacional para que seu evento `AFTER_COMMIT` ocorra após a confirmação.
+- Corrigida a expressão da chave de cache em `GetFolderByIdUseCase`. O comportamento atual do cache de pastas após atualização, movimentação e exclusão está registrado na seção 24.
 - Os testes de `ProjectController` e `FolderController` usam MockMvc/REST Docs. Os testes de use cases foram atualizados para fornecer `ProjectRepository` e o projeto no escopo, e para usar as novas assinaturas de movimentação e busca de subpastas.
 - O aviso de depreciação Gradle foi rastreado com `--warning-mode all --stacktrace`: `StartParameter.isConfigurationCacheRequested` é acessado pela biblioteca Grolifant usada pelo plugin Asciidoctor Gradle 4.0.5. O código da aplicação não origina esse aviso. A migração para o novo modelo do plugin Asciidoctor 5.x foi avaliada, mas não aplicada.
 
@@ -778,3 +778,17 @@ que ainda tratem snapshots ou status de execução como decisões pendentes.
   completar testes do agregado e avançar para persistência, casos de uso,
   controllers e testes HTTP. As tabelas de execução ficam para uma migration
   posterior, depois de TestCase estar pronto.
+
+## 24. Cache das consultas de Folder (16/11/2026)
+
+O cache Redis `folders` armazena detalhes de pastas, listas de raízes por projeto e listas de filhas por projeto e pasta pai. As chaves usadas são `<projectId>:<folderId>` para detalhes, `roots:<projectId>` para raízes e `children:<projectId>:<parentFolderId>` para filhas. As consultas repetidas com os mesmos parâmetros reutilizam a entrada correspondente; a árvore completa não possui uma entrada própria neste cache.
+
+As alterações de cache são processadas por listeners síncronos `AFTER_COMMIT`, separados dos listeners assíncronos de log. Assim, as entradas não são modificadas antes da confirmação da transação.
+
+- Na criação de uma pasta, o cache não é alterado; permanece o listener de log de criação.
+- Após atualizar o nome, o listener atualiza o detalhe e, se a lista de raízes ou de filhas já estiver armazenada, substitui ou inclui a pasta nessa lista. Os demais itens e sua ordem são preservados.
+- Após mover uma pasta, o listener atualiza o detalhe cacheado com o novo pai, remove a pasta da lista de origem e a inclui na lista de destino. As listas não existentes permanecem ausentes; `null` como pai representa a lista de raízes.
+- Após excluir uma pasta, todas as entradas de `folders` são removidas, pois a exclusão pode remover descendentes em cascata.
+- Após excluir um projeto, todas as entradas de `folders` também são removidas depois do commit, pois a exclusão do projeto remove suas pastas em cascata. A exclusão do projeto é transacional.
+
+Foram adicionados testes para a atualização seletiva das entradas de detalhe e listas, movimentação entre listas e processamento dos listeners de eventos após o commit. A configuração da tarefa `test` também exibe eventos de testes e saídas padrão.

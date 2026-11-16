@@ -1,6 +1,5 @@
 package testflow.TestFlow.application.folder.usecases;
 
-import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -20,7 +19,6 @@ public class DeleteFolderUseCase {
         this.eventPublisher = eventPublisher;
     }
 
-    @CacheEvict(value = "folders", allEntries = true)
     @Transactional
     public void execute(ProjectId projectId, FolderId id){
         long start = System.nanoTime();

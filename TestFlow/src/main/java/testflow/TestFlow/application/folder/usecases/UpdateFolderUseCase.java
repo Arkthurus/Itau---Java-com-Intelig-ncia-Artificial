@@ -1,6 +1,5 @@
 package testflow.TestFlow.application.folder.usecases;
 
-import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -24,7 +23,6 @@ public class UpdateFolderUseCase {
     }
 
     @Transactional
-    @CacheEvict(value = "folders", allEntries = true)
     public FolderOutput execute (ProjectId projectId, FolderId id, UpdateFolderInput input){
         long start = System.nanoTime();
 
@@ -46,10 +44,21 @@ public class UpdateFolderUseCase {
 
         long duration = (System.nanoTime() - start) / 1_000_000;
 
-        eventPublisher.publishEvent(
-                new FolderUpdatedEvent(id, duration, input.name(), oldName)
+        FolderOutput updatedFolder = new FolderOutput(
+                id.id().toString(),
+                input.name(),
+                folder.getProjectId().id().toString(),
+                parentFolderId
         );
+        eventPublisher.publishEvent(new FolderUpdatedEvent(
+                id,
+                folder.getProjectId(),
+                folder.getParentFolderId(),
+                duration,
+                input.name(),
+                oldName
+        ));
 
-        return new FolderOutput(id.id().toString(), input.name(), folder.getProjectId().id().toString(), parentFolderId);
+        return updatedFolder;
     }
 }

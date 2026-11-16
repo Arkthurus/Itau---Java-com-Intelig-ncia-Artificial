@@ -42,6 +42,11 @@ public class ProjectEventHandler {
         LOG.info("Projeto {} deletado em {}ms", event.projectId(), event.durationMs());
     }
 
+    @CacheEvict(cacheNames = "folders", allEntries = true)
+    @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
+    public void evictFoldersAfterProjectDelete(ProjectDeletedEvent event) {
+    }
+
     //Cache de Update
     @CacheEvict(cacheNames = "projects", key = "#event.project().id()")
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)

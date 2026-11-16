@@ -3,6 +3,7 @@ package testflow.TestFlow.application.project.usecases;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import testflow.TestFlow.domain.project.ProjectId;
 import testflow.TestFlow.domain.project.ProjectNotFoundException;
 import testflow.TestFlow.domain.project.ProjectRepository;
@@ -19,6 +20,7 @@ public class DeleteProjectUseCase {
     }
 
     @CacheEvict(value = "projects", key = "#id.id()")
+    @Transactional
     public void execute(ProjectId id){
         long start = System.nanoTime();
         if (projectRepository.findById(id).isEmpty()) {

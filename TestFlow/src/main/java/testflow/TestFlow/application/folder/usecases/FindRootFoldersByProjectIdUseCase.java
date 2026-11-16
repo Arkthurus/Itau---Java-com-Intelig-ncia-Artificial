@@ -1,5 +1,6 @@
 package testflow.TestFlow.application.folder.usecases;
 
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import testflow.TestFlow.application.folder.output.FolderOutput;
 import testflow.TestFlow.domain.folder.FolderRepository;
@@ -22,6 +23,7 @@ public class FindRootFoldersByProjectIdUseCase {
         this.projectRepository = projectRepository;
     }
 
+    @Cacheable(value = "folders", key = "'roots:' + #projectId.id().toString()")
     public List<FolderOutput> execute(ProjectId projectId) {
         projectRepository.findById(projectId)
                 .orElseThrow(() -> new ProjectNotFoundException(projectId));

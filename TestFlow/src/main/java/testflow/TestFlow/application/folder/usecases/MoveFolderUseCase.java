@@ -61,19 +61,22 @@ public class MoveFolderUseCase {
         }
 
         long durationMs = (System.nanoTime() - start) / 1_000_000;
-        eventPublisher.publishEvent(new FolderMovedEvent(
-                folderId,
-                oldParentFolderId,
-                newParentFolderId,
-                durationMs
-        ));
-
-        return new FolderOutput(
+        FolderOutput movedFolder = new FolderOutput(
                 folderId.id().toString(),
                 folder.getName(),
                 folder.getProjectId().id().toString(),
                 newParentFolderId != null ? newParentFolderId.id().toString() : null
         );
+        eventPublisher.publishEvent(new FolderMovedEvent(
+                folderId,
+                folder.getProjectId(),
+                folder.getName(),
+                oldParentFolderId,
+                newParentFolderId,
+                durationMs
+        ));
+
+        return movedFolder;
     }
 
     //Verifica se a pasta alvo não é uma subpPasta da Pasta que esta sendo movida
