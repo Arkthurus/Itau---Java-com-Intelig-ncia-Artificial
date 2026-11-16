@@ -1,73 +1,88 @@
 package testflow.TestFlow.domain.testCase;
 
 import jakarta.annotation.Nullable;
-import jakarta.validation.constraints.Null;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.util.Assert;
 import testflow.TestFlow.domain.folder.FolderId;
-import testflow.TestFlow.domain.project.Project;
 import testflow.TestFlow.domain.project.ProjectId;
-import testflow.TestFlow.domain.testcase.teststep.TestStep;
+import testflow.TestFlow.domain.testCase.testStep.TestStep;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
+
 
 @Getter
 @Setter
 public class TestCase {
-    private String name;
     private TestCaseId id;
-    private FolderId folderId;
+    @NotNull
     private ProjectId projectId;
+    @NotNull
+    private FolderId folderId;
+    @NotBlank
+    @Size(min = 3, max = 100)
+    private String name;
     @Nullable
+    @Size(min = 3, max = 100)
     private String objective;
     @Nullable
-    private String preConditions;
-    private List<TestStep> testSteps;
+    @Size(min = 3, max = 100)
+    private String preconditions;
+    private List<TestStep> steps;
 
-    //Constructor de criação
-    public TestCase(String name,
-                    FolderId folderId,
-                    ProjectId projectId,
-                    @Nullable String objective,
-                    @Nullable String preConditions
-    ){
-        Assert.hasText(name, "Nome do TestCase não pode ser vazio");
-        Assert.notNull(projectId, "ProjectId não pode ser nulo");
-        Assert.notNull(folderId, "FolderId não pode ser nulo");
 
-        this.id = new TestCaseId(UUID.randomUUID());
-        this.name = name;
-        this.folderId = folderId;
+    //Construtor de criação
+    public TestCase(
+            String name,
+            ProjectId projectId,
+            FolderId folderId,
+            @Nullable String objective,
+            @Nullable String preconditions
+    ) {
+        this.id = new TestCaseId();
         this.projectId = projectId;
+        this.folderId = folderId;
+        this.name = name;
         this.objective = objective;
-        this.preConditions = preConditions;
-        this.testSteps = new ArrayList<>();
-
+        this.preconditions = preconditions;
+        this.steps = new ArrayList<>();
     }
 
-    //Constructor de consulta ao banco
-    public TestCase(TestCaseId id,
-                    String name,
-                    FolderId folderId,
-                    ProjectId projectId,
-                    @Nullable String objective,
-                    @Nullable String preConditions,
-                    List<TestStep> testSteps
-    ){
-        Assert.hasText(name, "Nome do TestCase não pode ser vazio");
-        Assert.notNull(projectId, "ProjectId não pode ser nulo");
-        Assert.notNull(folderId, "FolderId não pode ser nulo");
+    //Construtor De consulta ao banco
+    public TestCase(
+            TestCaseId id,
+            String name,
+            ProjectId projectId,
+            FolderId folderId,
+            @Nullable String objective,
+            @Nullable String preconditions,
+            List<TestStep> steps
+    ) {
+        Assert.notNull(id, "TestCaseId não pode ser nulo.");
+        Assert.notNull(projectId, "ProjectId não pode ser nulo.");
+        Assert.notNull(folderId, "FolderId não pode ser nulo.");
+        Assert.hasText(name, "Name do TestCase não pode ser vazio");
+        if (objective != null && objective.isBlank()) {
+            throw new IllegalArgumentException(
+                    "Objetivo não pode conter apenas espaços em branco"
+            );
+        }
+        if (preconditions != null && preconditions.isBlank()) {
+            throw new IllegalArgumentException(
+                    "Pre-condições não pode conter apenas espaços em branco"
+            );
+        }
 
         this.id = id;
-        this.name = name;
-        this.folderId = folderId;
         this.projectId = projectId;
+        this.folderId = folderId;
+        this.preconditions = preconditions;
         this.objective = objective;
-        this.preConditions = preConditions;
-        this.testSteps = testSteps;
-
+        this.steps = steps;
     }
 }
+

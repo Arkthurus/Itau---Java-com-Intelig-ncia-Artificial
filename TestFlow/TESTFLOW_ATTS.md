@@ -46,8 +46,10 @@ src/main/java/
 ├── domain/
 │   ├── project/
 │   ├── folder/
-│   ├── testcase/
-│   └── testexecution/
+│   └── testCase/
+│       ├── testStep/
+│       └── testExecution/
+│           └── testStepExecution/
 ├── application/
 │   ├── project/
 │   │   ├── input/
@@ -743,10 +745,10 @@ que ainda tratem snapshots ou status de execução como decisões pendentes.
 - `TestCaseExecution` é um agregado separado, referencia o caso por ID e
   mantém seu próprio snapshot. `TestStepExecution` pertence à execução e
   também possui UUID próprio.
-- A organização de pacotes acordada é `domain/testcase/` para `TestCase`,
-  com subpacotes `teststep/` e `testexecution/`; dentro de `testexecution/`,
-  `teststepexecution/` contém `TestStepExecution` e seu ID. Nomes de pacotes
-  devem ser minúsculos.
+- A organização de pacotes acordada é `domain/testCase/` para `TestCase`,
+  com subpacotes `testStep/` e `testExecution/`; dentro de `testExecution/`,
+  `testStepExecution/` contém `TestStepExecution` e seu ID. Para esse domínio,
+  os nomes dos pacotes seguem a capitalização CamelCase adotada no projeto.
 - O bloco terá dois controllers: um para `TestCase` e outro para
   `TestCaseExecution`. Os passos são manipulados no contexto do respectivo
   recurso pai, sem controllers próprios.
@@ -838,11 +840,10 @@ Foram adicionados testes para a atualização seletiva das entradas de detalhe e
 
 ### 25.2 Revisão pendente de TestCase/TestStep
 
-- O working tree contém entradas de Git para caminhos de domínio que diferem
-  apenas pela capitalização (`testCase` e `testcase`). O projeto está em
-  Windows com `core.ignorecase=true`; consolidar esses caminhos em um único
-  diretório minúsculo (`testcase/teststep`) antes de continuar para evitar
-  colisões entre nomes de arquivo no checkout.
+- Os pacotes de domínio usam a capitalização `testCase/testStep` definida para
+  esse recurso. O Git no Windows está configurado com `core.ignorecase=true`;
+  não manter versões duplicadas dos mesmos arquivos em caminhos que diferem
+  apenas por maiúsculas/minúsculas.
 - A implementação atual de `TestStep` guarda `testCaseId` e `stepOrder` e
   valida nos construtores que a ordem não seja nula nem menor que 1.
 - Ainda é necessário garantir as invariantes de `TestCase` nos construtores e
