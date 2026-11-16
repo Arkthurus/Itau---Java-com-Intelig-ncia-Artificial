@@ -43,6 +43,20 @@ public class TestCase {
             @Nullable String objective,
             @Nullable String preconditions
     ) {
+        Assert.notNull(projectId, "ProjectId não pode ser nulo.");
+        Assert.notNull(folderId, "FolderId não pode ser nulo.");
+        Assert.hasText(name, "Name do TestCase não pode ser vazio");
+        if (objective != null && objective.isBlank()) {
+            throw new IllegalArgumentException(
+                    "Objetivo não pode conter apenas espaços em branco"
+            );
+        }
+        if (preconditions != null && preconditions.isBlank()) {
+            throw new IllegalArgumentException(
+                    "Pré-condições não podem conter apenas espaços em branco"
+            );
+        }
+
         this.id = new TestCaseId();
         this.projectId = projectId;
         this.folderId = folderId;
