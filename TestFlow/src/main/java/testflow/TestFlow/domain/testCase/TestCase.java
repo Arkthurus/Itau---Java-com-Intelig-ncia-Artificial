@@ -92,6 +92,7 @@ public class TestCase {
         }
 
         this.id = id;
+        this.name = name;
         this.projectId = projectId;
         this.folderId = folderId;
         this.preconditions = preconditions;
@@ -99,4 +100,3 @@ public class TestCase {
         this.steps = steps;
     }
 }
-

@@ -858,3 +858,26 @@ Foram adicionados testes para a atualização seletiva das entradas de detalhe e
 - `asciidoctor -x test` concluiu com sucesso. A tarefa foi executada sem
   repetir a suíte, que já havia sido executada e teve a falha de ambiente
   descrita acima.
+
+## 26. Edição conjunta de TestCase e TestSteps (19/11/2026)
+
+O endpoint `PATCH /testCases/{id}` recebe `UpdateTestCaseAndChildrenRequest`
+com os campos `name`, `objective`, `preconditions` e a lista `steps`. Cada
+passo enviado inclui `id`, `stepOrder`, `action` e `expectedResult`. O ID do
+TestCase vem da URL; os IDs dos passos identificam os passos existentes que
+serão atualizados.
+
+O `UpdateTestCaseAndChildrenUseCase` trata o envio como uma única operação
+transacional: busca o TestCase e seus passos atuais, exige que a lista recebida
+contenha exatamente todos os passos existentes, sem IDs repetidos nem passos
+de outro caso, e valida que `stepOrder` seja positivo, sem duplicatas e
+contínuo a partir de 1. A operação edita dados do TestCase e dos passos e
+permite reordená-los; não cria nem remove passos. Se uma validação ou
+persistência falhar, a transação não deve confirmar atualizações parciais.
+
+Os campos sem alteração não são persistidos novamente. Para cada campo
+alterado, o caso de uso publica `TestObjectUpdatedEvent` com tipo de objeto,
+ID, campo, valor anterior, valor novo e duração. O handler processa o evento
+após o commit e invalida o cache `testCases`. Foram adicionados testes para a
+edição conjunta, reordenação, lista incompleta, ordem duplicada e caso
+inexistente; os testes direcionados do use case e do repositório passaram.
